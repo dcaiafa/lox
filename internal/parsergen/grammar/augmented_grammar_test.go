@@ -7,7 +7,7 @@ import (
 	"github.com/dcaiafa/lox/internal/util/set"
 )
 
-func TestFirst(t *testing.T) {
+func TestFirst1(t *testing.T) {
 	// Dragon book section 4.11.
 	//	E  -> TE'
 	//	E' -> +TE' | ε
@@ -93,4 +93,69 @@ func TestFirst(t *testing.T) {
 	assertTerminalSetEq(t, g.First([]Symbol{sym("E'"), sym("E")}), "+", "(", "id")
 	assertTerminalSetEq(t, g.First([]Symbol{sym("E'"), sym("T'")}), "+", "*", "ε")
 	assertTerminalSetEq(t, g.First([]Symbol{sym("E'"), sym("id")}), "+", "id")
+}
+
+func TestFirst2(t *testing.T) {
+	// X -> Y Z '*'
+	// Y -> '+' | ε
+	// Z -> '-' | ε
+	sg := &Grammar{
+		Terminals: []*Terminal{
+			{Name: "+"},
+			{Name: "-"},
+			{Name: "*"},
+		},
+		Rules: []*Rule{
+			{
+				Name: "X",
+				Prods: []*Prod{
+					{Terms: []*Term{{Name: "Y"}, {Name: "Z"}, {Name: "*"}}},
+				},
+			},
+			{
+				Name: "Y",
+				Prods: []*Prod{
+					{Terms: []*Term{{Name: "+"}}},
+					{Terms: []*Term{}},
+				},
+			},
+			{
+				Name: "Z",
+				Prods: []*Prod{
+					{Terms: []*Term{{Name: "-"}}},
+					{Terms: []*Term{}},
+				},
+			},
+		},
+	}
+
+	errs := errlogger.New()
+
+	g := sg.ToAugmentedGrammar(errs)
+	if errs.HasError() {
+		t.Fatalf("ToAugmentedGrammar failed")
+	}
+
+	assertTerminalSetEq := func(t *testing.T, symSet *set.Set[*Terminal], symNames ...string) {
+		t.Helper()
+
+		expected := new(set.Set[string])
+		expected.AddSlice(symNames)
+		actual := new(set.Set[string])
+		symSet.ForEach(func(terminal *Terminal) {
+			actual.Add(terminal.Name)
+		})
+
+		if !actual.Equal(expected) {
+			t.Log("Expected: ", expected.Elements())
+			t.Log("Actual: ", actual.Elements())
+			t.Fatalf("Terminal set did not match expectation")
+		}
+	}
+
+	sym := func(name string) Symbol {
+		return g.GetSymbol(name)
+	}
+
+	assertTerminalSetEq(t, g.first(sym("X")), "+", "-", "*", "ε")
 }

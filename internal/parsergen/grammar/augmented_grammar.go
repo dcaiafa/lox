@@ -178,9 +178,12 @@ func (g *AugmentedGrammar) assignIndex() {
 }
 
 func (g *AugmentedGrammar) First(syms []Symbol) *set.Set[*Terminal] {
+	includeEpsilon := true
 	var fullSet *set.Set[*Terminal]
 	for i, sym := range syms {
 		symSet := g.first(sym)
+		hasEpsilon := symSet.Has(epsilon)
+		includeEpsilon = includeEpsilon && hasEpsilon
 		if i == 0 {
 			fullSet = symSet
 		} else {
@@ -189,10 +192,9 @@ func (g *AugmentedGrammar) First(syms []Symbol) *set.Set[*Terminal] {
 			}
 			fullSet.AddSet(symSet)
 		}
-		if !symSet.Has(epsilon) {
-			fullSet.Remove(epsilon)
-			break
-		}
+	}
+	if !includeEpsilon {
+		fullSet.Remove(epsilon)
 	}
 	if fullSet == nil {
 		fullSet = new(set.Set[*Terminal])
@@ -217,9 +219,15 @@ func (g *AugmentedGrammar) first(s Symbol) *set.Set[*Terminal] {
 		for _, prod := range s.Prods {
 			if len(prod.Terms) == 0 {
 				firstSet.Add(epsilon)
-			} else {
-				termSym := g.TermSymbol(prod.Terms[0])
-				firstSet.AddSet(g.first(termSym))
+				continue
+			}
+			for _, term := range prod.Terms {
+				termSym := g.TermSymbol(term)
+				termFirst := g.first(termSym)
+				firstSet.AddSet(termFirst)
+				if !termFirst.Has(epsilon) {
+					break
+				}
 			}
 		}
 		return firstSet
