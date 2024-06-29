@@ -1,20 +1,4 @@
-```
-  /\ \       /\  __ \   /\_\_\_\
-  \ \ \____  \ \ \/\ \  \/_/\_\/_
-   \ \_____\  \ \_____\   /\_\/\_\
-    \/_____/   \/_____/   \/_/\/_/
-```
-
-Lox is a parser/lexer generator for Go.
-
-## Why use Lox?
-
-Like other parser generators (e.g. Yacc), Lox generates a parser implementation
-from a grammar. Unlike most parser generators, Lox was designed specifically for
-the Go language. The grammar is separate from action code, and actions are
-matched to rules by method signature. The grammar is kept concise, and actions
-are type-checked by the Go compiler. Lox is also a lexer generator (like Lex):
-the parser and the lexer are defined in a common grammar specification.
+Lox is a parser/lexer generator (like Yacc/Lex) designed specifically for Go.
 
 ## Getting started
 
