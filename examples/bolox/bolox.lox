@@ -1,8 +1,11 @@
+// Basic On LOX
+
 @lexer
 
 OPAREN = '(';
 CPAREN = ')';
 COMMA  = ',';
+ASSIGN = '=';
 
 INT = [1-9] [0-9]*;
 STR = '"' ~[\n"]* '"';
@@ -22,15 +25,21 @@ stmts = stmts '\n' stmt
       ;
 
 stmt = func_call_stmt
+     | var_assign
      | @empty
      ;
 
 func_call_stmt = func_call;
 
+var_assign = ID '=' expr;
+
 func_call = ID '(' @list(expr, ',')? ')';
 
 expr = func_call
      | literal
+     | var_ref
      ;
+
+var_ref = ID;
 
 literal = INT | STR;

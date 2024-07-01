@@ -72,6 +72,13 @@ func (p *parser) on_func_call_stmt(fc *FuncCall) Statement {
 	}
 }
 
+func (p *parser) on_var_assign(n Token, _ Token, v Expr) *VarAssign {
+	return &VarAssign{
+		VarName: string(n.Str),
+		Value:   v,
+	}
+}
+
 func (p *parser) on_func_call(
 	n Token,
 	_ Token,
@@ -86,6 +93,12 @@ func (p *parser) on_func_call(
 
 func (p *parser) on_expr(e Expr) Expr {
 	return e
+}
+
+func (p *parser) on_var_ref(n Token) *VarRef {
+	return &VarRef{
+		VarName: string(n.Str),
+	}
 }
 
 func (p *parser) on_literal(l Token) *Literal {

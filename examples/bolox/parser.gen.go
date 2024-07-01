@@ -5,33 +5,38 @@ import (
 )
 
 var _rules = []int32{
-	0, 1, 2, 2, 3, 3, 4, 5, 6, 6, 7, 7, 8, 8,
-	9, 9,
+	0, 1, 2, 2, 3, 3, 3, 4, 5, 6, 7, 7, 7, 8,
+	9, 9, 10, 10, 11, 11,
 }
 
 var _termCounts = []int32{
-	1, 1, 3, 1, 1, 0, 1, 4, 1, 1, 1, 1, 1, 0,
-	3, 1,
+	1, 1, 3, 1, 1, 1, 0, 1, 3, 4, 1, 1, 1, 1,
+	1, 1, 1, 0, 3, 1,
 }
 
 var _actions = []int32{
-	20, 27, 30, 35, 40, 43, 48, 20, 53, 62, 67, 72, 75, 80,
-	85, 90, 95, 100, 109, 116, 6, 0, -5, 7, 1, 8, -5, 2,
-	2, 8, 4, 0, -6, 8, -6, 4, 0, -4, 8, -4, 2, 0,
-	2147483647, 4, 0, -3, 8, -3, 4, 0, -1, 8, 7, 8, 3, -13,
-	7, 1, 5, 12, 6, 13, 4, 0, -2, 8, -2, 4, 4, 18,
-	3, -12, 2, 3, 17, 4, 4, -10, 3, -10, 4, 4, -11, 3,
-	-11, 4, 4, -15, 3, -15, 4, 4, -8, 3, -8, 4, 4, -9,
-	3, -9, 8, 4, -7, 3, -7, 0, -7, 8, -7, 6, 7, 1,
-	5, 12, 6, 13, 4, 4, -14, 3, -14,
+	25, 32, 37, 42, 47, 50, 55, 60, 25, 65, 72, 81, 86, 97,
+	106, 115, 120, 129, 138, 147, 152, 155, 160, 65, 169, 6, 0, -6,
+	8, 1, 9, -6, 4, 5, 9, 2, 10, 4, 0, -7, 9, -7,
+	4, 0, -4, 9, -4, 2, 0, 2147483647, 4, 0, -3, 9, -3, 4,
+	0, -1, 9, 8, 4, 0, -5, 9, -5, 6, 8, 12, 6, 13,
+	7, 14, 8, 3, -17, 8, 12, 6, 13, 7, 14, 4, 0, -2,
+	9, -2, 10, 4, -13, 3, -13, 0, -13, 9, -13, 2, 10, 8,
+	4, -14, 3, -14, 0, -14, 9, -14, 8, 4, -15, 3, -15, 0,
+	-15, 9, -15, 4, 0, -8, 9, -8, 8, 4, -10, 3, -10, 0,
+	-10, 9, -10, 8, 4, -11, 3, -11, 0, -11, 9, -11, 8, 4,
+	-12, 3, -12, 0, -12, 9, -12, 4, 4, 23, 3, -16, 2, 3,
+	22, 4, 4, -19, 3, -19, 8, 4, -9, 3, -9, 0, -9, 9,
+	-9, 4, 4, -18, 3, -18,
 }
 
 var _goto = []int32{
-	20, 31, 31, 31, 31, 31, 31, 32, 39, 31, 31, 31, 31, 31,
-	31, 31, 31, 31, 50, 31, 10, 5, 2, 4, 3, 1, 4, 3,
-	5, 2, 6, 0, 6, 5, 2, 4, 3, 3, 9, 10, 9, 10,
-	8, 11, 6, 14, 5, 15, 7, 16, 6, 6, 19, 5, 15, 7,
-	16,
+	25, 38, 38, 38, 38, 38, 38, 38, 39, 48, 57, 38, 38, 38,
+	38, 38, 38, 38, 38, 38, 38, 38, 38, 70, 38, 12, 6, 2,
+	4, 3, 1, 4, 3, 5, 2, 6, 5, 7, 0, 8, 6, 2,
+	4, 3, 3, 11, 5, 7, 8, 7, 15, 6, 16, 9, 17, 8,
+	18, 12, 11, 19, 10, 20, 7, 21, 6, 16, 9, 17, 8, 18,
+	8, 7, 24, 6, 16, 9, 17, 8, 18,
 }
 
 type _Bounds struct {
@@ -251,47 +256,65 @@ func (p *parser) _act(prod int32) any {
 			_cast[Statement](p._stack.Peek(0).Sym),
 		)
 	case 5:
-		return p.on_stmt__empty()
+		return p.on_stmt(
+			_cast[Statement](p._stack.Peek(0).Sym),
+		)
 	case 6:
+		return p.on_stmt__empty()
+	case 7:
 		return p.on_func_call_stmt(
 			_cast[*FuncCall](p._stack.Peek(0).Sym),
 		)
-	case 7:
+	case 8:
+		return p.on_var_assign(
+			_cast[_i0.Token](p._stack.Peek(2).Sym),
+			_cast[_i0.Token](p._stack.Peek(1).Sym),
+			_cast[Expr](p._stack.Peek(0).Sym),
+		)
+	case 9:
 		return p.on_func_call(
 			_cast[_i0.Token](p._stack.Peek(3).Sym),
 			_cast[_i0.Token](p._stack.Peek(2).Sym),
 			_cast[[]Expr](p._stack.Peek(1).Sym),
 			_cast[_i0.Token](p._stack.Peek(0).Sym),
 		)
-	case 8:
-		return p.on_expr(
-			_cast[Expr](p._stack.Peek(0).Sym),
-		)
-	case 9:
-		return p.on_expr(
-			_cast[Expr](p._stack.Peek(0).Sym),
-		)
 	case 10:
-		return p.on_literal(
-			_cast[_i0.Token](p._stack.Peek(0).Sym),
+		return p.on_expr(
+			_cast[Expr](p._stack.Peek(0).Sym),
 		)
 	case 11:
+		return p.on_expr(
+			_cast[Expr](p._stack.Peek(0).Sym),
+		)
+	case 12:
+		return p.on_expr(
+			_cast[Expr](p._stack.Peek(0).Sym),
+		)
+	case 13:
+		return p.on_var_ref(
+			_cast[_i0.Token](p._stack.Peek(0).Sym),
+		)
+	case 14:
 		return p.on_literal(
 			_cast[_i0.Token](p._stack.Peek(0).Sym),
 		)
-	case 12: // ZeroOrOne
+	case 15:
+		return p.on_literal(
+			_cast[_i0.Token](p._stack.Peek(0).Sym),
+		)
+	case 16: // ZeroOrOne
 		return _cast[[]Expr](p._stack.Peek(0).Sym)
-	case 13: // ZeroOrOne
+	case 17: // ZeroOrOne
 		{
 			var zero []Expr
 			return zero
 		}
-	case 14: // List
+	case 18: // List
 		return append(
 			_cast[[]Expr](p._stack.Peek(2).Sym),
 			_cast[Expr](p._stack.Peek(0).Sym),
 		)
-	case 15: // List
+	case 19: // List
 		return []Expr{
 			_cast[Expr](p._stack.Peek(0).Sym),
 		}

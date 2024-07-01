@@ -32,9 +32,9 @@ type Program struct {
 	Statements []Statement
 }
 
-func (p *Program) Run() error {
+func (p *Program) Run(ctx *Context) error {
 	for _, stmt := range p.Statements {
-		err := stmt.Run()
+		err := stmt.Run(ctx)
 		if err != nil {
 			return err
 		}
@@ -44,7 +44,7 @@ func (p *Program) Run() error {
 
 type Statement interface {
 	AST
-	Run() error
+	Run(ctx *Context) error
 }
 
 type FuncCallStatement struct {
@@ -53,14 +53,30 @@ type FuncCallStatement struct {
 	FuncCall *FuncCall
 }
 
-func (s *FuncCallStatement) Run() error {
-	_, err := s.FuncCall.Eval()
+func (s *FuncCallStatement) Run(ctx *Context) error {
+	_, err := s.FuncCall.Eval(ctx)
 	return err
+}
+
+type VarAssign struct {
+	AST
+
+	VarName string
+	Value   Expr
+}
+
+func (a *VarAssign) Run(ctx *Context) error {
+	v, err := a.Value.Eval(ctx)
+	if err != nil {
+		return err
+	}
+	ctx.SetGlobal(a.VarName, v)
+	return nil
 }
 
 type Expr interface {
 	AST
-	Eval() (any, error)
+	Eval(ctx *Context) (any, error)
 }
 
 type FuncCall struct {
@@ -70,11 +86,11 @@ type FuncCall struct {
 	Args     []Expr
 }
 
-func (c *FuncCall) Eval() (any, error) {
+func (c *FuncCall) Eval(ctx *Context) (any, error) {
 	var err error
 	vals := make([]any, len(c.Args))
 	for i, arg := range c.Args {
-		vals[i], err = arg.Eval()
+		vals[i], err = arg.Eval(ctx)
 		if err != nil {
 			return nil, err
 		}
@@ -90,6 +106,20 @@ func (c *FuncCall) Eval() (any, error) {
 	}
 }
 
+type VarRef struct {
+	baseAST
+
+	VarName string
+}
+
+func (r *VarRef) Eval(ctx *Context) (any, error) {
+	v, ok := ctx.GetGlobal(r.VarName)
+	if !ok {
+		return nil, fmt.Errorf("undefined: %v", r.VarName)
+	}
+	return v, nil
+}
+
 func doPrint(vals []any) (any, error) {
 	fmt.Println(vals...)
 	return nil, nil
@@ -101,6 +131,6 @@ type Literal struct {
 	Val any
 }
 
-func (l *Literal) Eval() (any, error) {
+func (l *Literal) Eval(ctx *Context) (any, error) {
 	return l.Val, nil
 }

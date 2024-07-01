@@ -17,7 +17,9 @@ func main() {
 		log.Fatal(err)
 	}
 
-	err = program.Run()
+	ctx := NewContext()
+
+	err = program.Run(ctx)
 	if err != nil {
 		log.Fatal(err)
 	}

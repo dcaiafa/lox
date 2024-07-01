@@ -6,10 +6,11 @@ const (
 	OPAREN int = 2
 	CPAREN int = 3
 	COMMA  int = 4
-	INT    int = 5
-	STR    int = 6
-	ID     int = 7
-	NL     int = 8
+	ASSIGN int = 5
+	INT    int = 6
+	STR    int = 7
+	ID     int = 8
+	NL     int = 9
 )
 
 func _TokenToString(t int) string {
@@ -24,6 +25,8 @@ func _TokenToString(t int) string {
 		return "CPAREN"
 	case COMMA:
 		return "COMMA"
+	case ASSIGN:
+		return "ASSIGN"
 	case INT:
 		return "INT"
 	case STR:
