@@ -1,0 +1,36 @@
+@lexer
+
+OPAREN = '(';
+CPAREN = ')';
+COMMA  = ',';
+
+INT = [1-9] [0-9]*;
+STR = '"' ~[\n"]* '"';
+
+ID = [A-Za-z_] [A-Za-z0-9_]*;
+
+NL = '\n';
+
+@frag [ \r\t]+ @discard;
+
+@parser
+
+@start program = stmts;
+
+stmts = stmts '\n' stmt
+      | stmt
+      ;
+
+stmt = func_call_stmt
+     | @empty
+     ;
+
+func_call_stmt = func_call;
+
+func_call = ID '(' @list(expr, ',')? ')';
+
+expr = func_call
+     | literal
+     ;
+
+literal = INT | STR;
