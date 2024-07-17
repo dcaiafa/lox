@@ -35,10 +35,10 @@ var_assign = ID '=' expr;
 
 func_call = ID '(' @list(expr, ',')? ')';
 
-expr = func_call
-     | literal
-     | var_ref
-     ;
+simple_expr = func_call
+            | literal
+            | var_ref
+            ;
 
 var_ref = ID;
 

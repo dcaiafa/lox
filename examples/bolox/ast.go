@@ -95,15 +95,7 @@ func (c *FuncCall) Eval(ctx *Context) (any, error) {
 			return nil, err
 		}
 	}
-
-	switch c.FuncName {
-	case "print":
-		return doPrint(vals)
-
-	default:
-		return nil, fmt.Errorf(
-			"undefined: %v", c.FuncName)
-	}
+	return ctx.Call(c.FuncName, vals)
 }
 
 type VarRef struct {
