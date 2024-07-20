@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	gotoken "go/token"
+	"reflect"
 )
 
 type Bounds struct {
@@ -125,4 +126,71 @@ type Literal struct {
 
 func (l *Literal) Eval(ctx *Context) (any, error) {
 	return l.Val, nil
+}
+
+type Op int
+
+const (
+	OpPlus Op = iota
+	OpMinus
+	OpTimes
+	OpDiv
+)
+
+type BinaryExpr struct {
+	baseAST
+
+	Left  Expr
+	Right Expr
+	Op    Op
+}
+
+func (e *BinaryExpr) Eval(ctx *Context) (any, error) {
+	va, err := e.Left.Eval(ctx)
+	if err != nil {
+		return nil, err
+	}
+	vb, err := e.Right.Eval(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	if a, b, ok := castBinaryExpr[int](va, vb); ok {
+		switch e.Op {
+		case OpPlus:
+			return a + b, nil
+		case OpMinus:
+			return a - b, nil
+		case OpTimes:
+			return a * b, nil
+		case OpDiv:
+			if b == 0 {
+				return nil, fmt.Errorf("division by zero")
+			}
+			return a / b, nil
+		default:
+			panic("unreachable")
+		}
+	} else if a, b, ok := castBinaryExpr[string](va, vb); ok {
+		if e.Op != OpPlus {
+			return nil, fmt.Errorf("operation not supported by string")
+		}
+		return a + b, nil
+	} else {
+		return nil, fmt.Errorf(
+			"operation not supported between %v and %v",
+			reflect.TypeOf(va), reflect.TypeOf(vb))
+	}
+}
+
+func castBinaryExpr[T any](a, b any) (ca, cb T, ok bool) {
+	ca, ok = a.(T)
+	if !ok {
+		return ca, cb, false
+	}
+	cb, ok = b.(T)
+	if !ok {
+		return ca, cb, false
+	}
+	return ca, cb, true
 }

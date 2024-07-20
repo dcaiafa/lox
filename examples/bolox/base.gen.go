@@ -7,10 +7,14 @@ const (
 	CPAREN int = 3
 	COMMA  int = 4
 	ASSIGN int = 5
-	INT    int = 6
-	STR    int = 7
-	ID     int = 8
-	NL     int = 9
+	PLUS   int = 6
+	MINUS  int = 7
+	TIMES  int = 8
+	DIV    int = 9
+	INT    int = 10
+	STR    int = 11
+	ID     int = 12
+	NL     int = 13
 )
 
 func _TokenToString(t int) string {
@@ -27,6 +31,14 @@ func _TokenToString(t int) string {
 		return "COMMA"
 	case ASSIGN:
 		return "ASSIGN"
+	case PLUS:
+		return "PLUS"
+	case MINUS:
+		return "MINUS"
+	case TIMES:
+		return "TIMES"
+	case DIV:
+		return "DIV"
 	case INT:
 		return "INT"
 	case STR:

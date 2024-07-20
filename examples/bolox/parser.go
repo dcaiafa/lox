@@ -91,7 +91,36 @@ func (p *parser) on_func_call(
 	}
 }
 
-func (p *parser) on_expr(e Expr) Expr {
+func (p *parser) on_expr__bin(l Expr, optok Token, r Expr) Expr {
+	var op Op
+	switch optok.Type {
+	case PLUS:
+		op = OpPlus
+	case MINUS:
+		op = OpMinus
+	case TIMES:
+		op = OpTimes
+	case DIV:
+		op = OpDiv
+	default:
+		panic("unreachable")
+	}
+	return &BinaryExpr{
+		Left:  l,
+		Right: r,
+		Op:    op,
+	}
+}
+
+func (p *parser) on_expr__paren(_ Token, e Expr, _ Token) Expr {
+	return e
+}
+
+func (p *parser) on_expr__simple(e Expr) Expr {
+	return e
+}
+
+func (p *parser) on_simple_expr(e Expr) Expr {
 	return e
 }
 

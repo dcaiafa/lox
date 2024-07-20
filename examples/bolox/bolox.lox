@@ -2,44 +2,53 @@
 
 @lexer
 
-OPAREN = '(';
-CPAREN = ')';
-COMMA  = ',';
-ASSIGN = '=';
+OPAREN = '('
+CPAREN = ')'
+COMMA  = ','
+ASSIGN = '='
 
-INT = [1-9] [0-9]*;
-STR = '"' ~[\n"]* '"';
+PLUS   = '+'
+MINUS  = '-'
+TIMES  = '*'
+DIV    = '/'
 
-ID = [A-Za-z_] [A-Za-z0-9_]*;
+INT = [1-9] [0-9]*
+STR = '"' ~[\n"]* '"'
 
-NL = '\n';
+ID = [A-Za-z_] [A-Za-z0-9_]*
 
-@frag [ \r\t]+ @discard;
+NL = '\n'
+
+@frag [ \r\t]+ @discard
 
 @parser
 
-@start program = stmts;
+@start program = stmts
 
 stmts = stmts '\n' stmt
       | stmt
-      ;
 
 stmt = func_call_stmt
      | var_assign
      | @empty
-     ;
 
-func_call_stmt = func_call;
+func_call_stmt = func_call
 
-var_assign = ID '=' expr;
+var_assign = ID '=' expr
 
-func_call = ID '(' @list(expr, ',')? ')';
+func_call = ID '(' @list(expr, ',')? ')'
+
+expr = expr '+' expr  @left(1)
+     | expr '-' expr  @left(1)
+     | expr '*' expr  @left(2)
+     | expr '/' expr  @left(2)
+     | '(' expr ')' 
+     | simple_expr
 
 simple_expr = func_call
             | literal
             | var_ref
-            ;
 
-var_ref = ID;
+var_ref = ID
 
-literal = INT | STR;
+literal = INT | STR
