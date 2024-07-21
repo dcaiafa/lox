@@ -55,10 +55,16 @@ func (b *Block) Run(ctx *Context) error {
 type Statement interface {
 	AST
 	Run(ctx *Context) error
+	Discard() bool
 }
+
+type dontDiscard struct{}
+
+func (d dontDiscard) Discard() bool { return false }
 
 type FuncCallStatement struct {
 	AST
+	dontDiscard
 
 	FuncCall *FuncCall
 }
@@ -70,6 +76,7 @@ func (s *FuncCallStatement) Run(ctx *Context) error {
 
 type VarAssign struct {
 	AST
+	dontDiscard
 
 	VarName string
 	Value   Expr
@@ -311,6 +318,8 @@ func castBinaryExpr[T any](a, b any) (ca, cb T, ok bool) {
 
 type While struct {
 	baseAST
+	dontDiscard
+
 	Pred  Expr
 	Block *Block
 }
@@ -343,3 +352,4 @@ type Noop struct {
 }
 
 func (n *Noop) Run(ctx *Context) error { return nil }
+func (n *Noop) Discard() bool          { return true }

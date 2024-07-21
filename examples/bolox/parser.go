@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"strconv"
 
 	gotoken "go/token"
@@ -19,10 +20,12 @@ func Parse(filename string, fileData []byte) (*Program, error) {
 		Input:        fileData,
 	})
 
-	p := new(parser)
+	p := &parser{
+		file: file,
+	}
 	ok := p.parse(l)
 
-	if !ok {
+	if !ok || p.program == nil {
 		return nil, fmt.Errorf("failed to parse")
 	}
 
@@ -33,13 +36,26 @@ type Token = simplelexer.Token
 
 type parser struct {
 	lox
-
+	file    *gotoken.File
 	program *Program
 }
 
 func (p *parser) on_program(block *Block) any {
 	p.program = &Program{
 		Block: block,
+	}
+	return nil
+}
+
+func (p *parser) on_program__error(e Error) any {
+	if e.Token.Type == ERROR {
+		fmt.Fprintf(
+			os.Stderr, "%v: %v\n",
+			p.file.Position(e.Token.Pos), e.Token.Err)
+	} else {
+		fmt.Fprintf(
+			os.Stderr, "%v: unexpected %v\n",
+			p.file.Position(e.Token.Pos), _TokenToString(e.Token.Type))
 	}
 	return nil
 }
@@ -56,10 +72,6 @@ func (p *parser) on_stmt(stmt Statement, _ Token) Statement {
 
 func (p *parser) on_stmt__nl(_ Token) Statement {
 	return &Noop{}
-}
-
-func (p *parser) on_stmt__empty() Statement {
-	return nil
 }
 
 func (p *parser) on_while_stmt(_ Token, e Expr, _ Token, b *Block, _ Token) *While {

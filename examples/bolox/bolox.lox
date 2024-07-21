@@ -19,7 +19,7 @@ GT     = '>'
 GE     = '>='
 EQ     = '=='
 
-INT = [1-9] [0-9]*
+INT = '0' | [1-9] [0-9]*
 STR = '"' ~[\n"]* '"'
 
 WHILE = 'while'
@@ -36,8 +36,9 @@ NL = '\n'
 @parser
 
 @start program = block
+               | @error
 
-block = stmt*
+block = stmt*!
 
 stmt = func_call_stmt NL
      | var_assign NL
