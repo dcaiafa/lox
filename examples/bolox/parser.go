@@ -37,33 +37,36 @@ type parser struct {
 	program *Program
 }
 
-func (p *parser) on_program(stmts []Statement) any {
+func (p *parser) on_program(block *Block) any {
 	p.program = &Program{
-		Statements: stmts,
+		Block: block,
 	}
 	return nil
 }
 
-func (p *parser) on_stmts__1(stmts []Statement, _ Token, stmt Statement) []Statement {
-	if stmt != nil {
-		stmts = append(stmts, stmt)
+func (p *parser) on_block(stmts []Statement) *Block {
+	return &Block{
+		Statements: stmts,
 	}
-	return stmts
 }
 
-func (p *parser) on_stmts__2(stmt Statement) []Statement {
-	if stmt == nil {
-		return nil
-	}
-	return []Statement{stmt}
-}
-
-func (p *parser) on_stmt(stmt Statement) Statement {
+func (p *parser) on_stmt(stmt Statement, _ Token) Statement {
 	return stmt
+}
+
+func (p *parser) on_stmt__nl(_ Token) Statement {
+	return &Noop{}
 }
 
 func (p *parser) on_stmt__empty() Statement {
 	return nil
+}
+
+func (p *parser) on_while_stmt(_ Token, e Expr, _ Token, b *Block, _ Token) *While {
+	return &While{
+		Pred:  e,
+		Block: b,
+	}
 }
 
 func (p *parser) on_func_call_stmt(fc *FuncCall) Statement {
@@ -102,9 +105,24 @@ func (p *parser) on_expr__bin(l Expr, optok Token, r Expr) Expr {
 		op = OpTimes
 	case DIV:
 		op = OpDiv
+	case LT:
+		op = OpLT
+	case LE:
+		op = OpLE
+	case GT:
+		op = OpGT
+	case GE:
+		op = OpGE
+	case EQ:
+		op = OpEq
+	case AND:
+		op = OpAnd
+	case OR:
+		op = OpOr
 	default:
 		panic("unreachable")
 	}
+
 	return &BinaryExpr{
 		Left:  l,
 		Right: r,

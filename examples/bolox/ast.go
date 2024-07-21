@@ -30,11 +30,20 @@ func (b *baseAST) SetBounds(v Bounds) {
 
 type Program struct {
 	AST
-	Statements []Statement
+	Block *Block
 }
 
 func (p *Program) Run(ctx *Context) error {
-	for _, stmt := range p.Statements {
+	return p.Block.Run(ctx)
+}
+
+type Block struct {
+	AST
+	Statements []Statement
+}
+
+func (b *Block) Run(ctx *Context) error {
+	for _, stmt := range b.Statements {
 		err := stmt.Run(ctx)
 		if err != nil {
 			return err
@@ -135,6 +144,14 @@ const (
 	OpMinus
 	OpTimes
 	OpDiv
+	OpLT
+	OpLE
+	OpGT
+	OpGE
+	OpEq
+	OpNE
+	OpAnd
+	OpOr
 )
 
 type BinaryExpr struct {
@@ -146,10 +163,18 @@ type BinaryExpr struct {
 }
 
 func (e *BinaryExpr) Eval(ctx *Context) (any, error) {
+	switch e.Op {
+	case OpAnd:
+		return e.evalAnd(ctx)
+	case OpOr:
+		return e.evalOr(ctx)
+	}
+
 	va, err := e.Left.Eval(ctx)
 	if err != nil {
 		return nil, err
 	}
+
 	vb, err := e.Right.Eval(ctx)
 	if err != nil {
 		return nil, err
@@ -168,19 +193,108 @@ func (e *BinaryExpr) Eval(ctx *Context) (any, error) {
 				return nil, fmt.Errorf("division by zero")
 			}
 			return a / b, nil
+		case OpLT:
+			return a < b, nil
+		case OpLE:
+			return a <= b, nil
+		case OpGT:
+			return a > b, nil
+		case OpGE:
+			return a >= b, nil
+		case OpEq:
+			return a == b, nil
+		case OpNE:
+			return a != b, nil
 		default:
 			panic("unreachable")
 		}
 	} else if a, b, ok := castBinaryExpr[string](va, vb); ok {
-		if e.Op != OpPlus {
+		switch e.Op {
+		case OpPlus:
+			return a + b, nil
+		case OpLT:
+			return a < b, nil
+		case OpLE:
+			return a <= b, nil
+		case OpGT:
+			return a > b, nil
+		case OpGE:
+			return a >= b, nil
+		case OpEq:
+			return a == b, nil
+		case OpNE:
+			return a != b, nil
+		default:
 			return nil, fmt.Errorf("operation not supported by string")
 		}
-		return a + b, nil
+	} else if a, b, ok := castBinaryExpr[bool](va, vb); ok {
+		switch e.Op {
+		case OpEq:
+			return a == b, nil
+		case OpNE:
+			return a != b, nil
+		default:
+			return nil, fmt.Errorf("operation not supported by string")
+		}
 	} else {
 		return nil, fmt.Errorf(
 			"operation not supported between %v and %v",
 			reflect.TypeOf(va), reflect.TypeOf(vb))
 	}
+}
+
+func (e *BinaryExpr) evalAnd(ctx *Context) (any, error) {
+	va, err := e.Left.Eval(ctx)
+	if err != nil {
+		return nil, err
+	}
+	ba, ok := va.(bool)
+	if !ok {
+		return nil, fmt.Errorf(
+			"operation not supported for %v",
+			reflect.TypeOf(va))
+	}
+	if !ba {
+		return false, nil
+	}
+	vb, err := e.Right.Eval(ctx)
+	if err != nil {
+		return nil, err
+	}
+	bb, ok := vb.(bool)
+	if !ok {
+		return nil, fmt.Errorf(
+			"operation not supported for %v",
+			reflect.TypeOf(vb))
+	}
+	return ba && bb, nil
+}
+
+func (e *BinaryExpr) evalOr(ctx *Context) (any, error) {
+	va, err := e.Left.Eval(ctx)
+	if err != nil {
+		return nil, err
+	}
+	ba, ok := va.(bool)
+	if !ok {
+		return nil, fmt.Errorf(
+			"operation not supported for %v",
+			reflect.TypeOf(va))
+	}
+	if ba {
+		return true, nil
+	}
+	vb, err := e.Right.Eval(ctx)
+	if err != nil {
+		return nil, err
+	}
+	bb, ok := vb.(bool)
+	if !ok {
+		return nil, fmt.Errorf(
+			"operation not supported for %v",
+			reflect.TypeOf(vb))
+	}
+	return ba || bb, nil
 }
 
 func castBinaryExpr[T any](a, b any) (ca, cb T, ok bool) {
@@ -194,3 +308,38 @@ func castBinaryExpr[T any](a, b any) (ca, cb T, ok bool) {
 	}
 	return ca, cb, true
 }
+
+type While struct {
+	baseAST
+	Pred  Expr
+	Block *Block
+}
+
+func (w *While) Run(ctx *Context) error {
+	for {
+		v, err := w.Pred.Eval(ctx)
+		if err != nil {
+			return err
+		}
+		vb, ok := v.(bool)
+		if !ok {
+			return fmt.Errorf(
+				"while predicate must be bool, not %v",
+				reflect.TypeOf(v))
+		}
+		if !vb {
+			break
+		}
+		err = w.Block.Run(ctx)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+type Noop struct {
+	baseAST
+}
+
+func (n *Noop) Run(ctx *Context) error { return nil }

@@ -6,31 +6,45 @@ OPAREN = '('
 CPAREN = ')'
 COMMA  = ','
 ASSIGN = '='
+OCURLY = '{'
+CCURLY = '}'
 
 PLUS   = '+'
 MINUS  = '-'
 TIMES  = '*'
 DIV    = '/'
+LT     = '<'
+LE     = '<='
+GT     = '>'
+GE     = '>='
+EQ     = '=='
 
 INT = [1-9] [0-9]*
 STR = '"' ~[\n"]* '"'
+
+WHILE = 'while'
+OR = 'or'
+AND = 'and'
 
 ID = [A-Za-z_] [A-Za-z0-9_]*
 
 NL = '\n'
 
+// Whitespace
 @frag [ \r\t]+ @discard
 
 @parser
 
-@start program = stmts
+@start program = block
 
-stmts = stmts '\n' stmt
-      | stmt
+block = stmt*
 
-stmt = func_call_stmt
-     | var_assign
-     | @empty
+stmt = func_call_stmt NL
+     | var_assign NL
+     | while_stmt NL
+     | NL
+
+while_stmt = 'while' expr '{' block '}'
 
 func_call_stmt = func_call
 
@@ -38,10 +52,17 @@ var_assign = ID '=' expr
 
 func_call = ID '(' @list(expr, ',')? ')'
 
-expr = expr '+' expr  @left(1)
-     | expr '-' expr  @left(1)
-     | expr '*' expr  @left(2)
-     | expr '/' expr  @left(2)
+expr = expr '+' expr    @left(1)
+     | expr '-' expr    @left(1)
+     | expr '*' expr    @left(2)
+     | expr '/' expr    @left(2)
+     | expr '<' expr    @left(3)
+     | expr '<=' expr   @left(3)
+     | expr '>' expr    @left(3)
+     | expr '>=' expr   @left(3)
+     | expr '==' expr   @left(3)
+     | expr 'and' expr  @left(4)
+     | expr 'or' expr   @left(5)
      | '(' expr ')' 
      | simple_expr
 
