@@ -233,3 +233,15 @@ func (p *parser) on_string_part__char_seq(cs Token) Expr {
 func (p *parser) on_string_part__expr(_ Token, e Expr, _ Token) Expr {
 	return e
 }
+
+func (p *parser) _onBounds(r any, begin, end Token) {
+	rast, ok := r.(AST)
+	if !ok || rast == nil {
+		return
+	}
+
+	rast.SetBounds(Bounds{
+		Begin: begin.Pos,
+		End:   end.Pos + gotoken.Pos(len(end.Str)),
+	})
+}

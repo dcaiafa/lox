@@ -32,6 +32,10 @@ func (b *baseAST) SetBounds(v Bounds) {
 
 func (b *baseAST) Discard() bool { return false }
 
+func errorWithPos(ctx *Context, ast AST, err error) error {
+	return fmt.Errorf("%w\nfrom: %v", ctx.FileSet.Position(ast.Bounds().Begin))
+}
+
 type Control int
 
 const (
@@ -92,6 +96,9 @@ type FuncCallStatement struct {
 
 func (s *FuncCallStatement) Run(ctx *Context) (Control, error) {
 	_, err := s.FuncCall.Eval(ctx)
+	if err != nil {
+		return 0, errorWithPos(ctx, s.FuncCall, err)
+	}
 	return Step, err
 }
 
@@ -144,7 +151,7 @@ type VarRef struct {
 func (r *VarRef) Eval(ctx *Context) (any, error) {
 	v, ok := ctx.GetGlobal(r.VarName)
 	if !ok {
-		return nil, fmt.Errorf("undefined: %v", r.VarName)
+		return nil, errorWithPos(ctx, r, fmt.Errorf("undefined: %v", r.VarName))
 	}
 	return v, nil
 }
@@ -189,7 +196,12 @@ type BinaryExpr struct {
 	Op    Op
 }
 
-func (e *BinaryExpr) Eval(ctx *Context) (any, error) {
+func (e *BinaryExpr) Eval(ctx *Context) (res any, err error) {
+	defer func() {
+		if err != nil {
+			err = errorWithPos(ctx, e, err)
+		}
+	}()
 	switch e.Op {
 	case OpAnd:
 		return e.evalAnd(ctx)
@@ -260,7 +272,13 @@ func (e *BinaryExpr) Eval(ctx *Context) (any, error) {
 	}
 }
 
-func (e *BinaryExpr) evalAnd(ctx *Context) (any, error) {
+func (e *BinaryExpr) evalAnd(ctx *Context) (res any, err error) {
+	defer func() {
+		if err != nil {
+			err = errorWithPos(ctx, e, err)
+		}
+	}()
+
 	va, err := e.Left.Eval(ctx)
 	if err != nil {
 		return nil, err
@@ -287,7 +305,13 @@ func (e *BinaryExpr) evalAnd(ctx *Context) (any, error) {
 	return ba && bb, nil
 }
 
-func (e *BinaryExpr) evalOr(ctx *Context) (any, error) {
+func (e *BinaryExpr) evalOr(ctx *Context) (res any, err error) {
+	defer func() {
+		if err != nil {
+			err = errorWithPos(ctx, e, err)
+		}
+	}()
+
 	va, err := e.Left.Eval(ctx)
 	if err != nil {
 		return nil, err
@@ -335,17 +359,11 @@ type While struct {
 
 func (w *While) Run(ctx *Context) (Control, error) {
 	for {
-		v, err := w.Pred.Eval(ctx)
+		pred, err := evalPredicate(ctx, w.Pred)
 		if err != nil {
 			return 0, err
 		}
-		vb, ok := v.(bool)
-		if !ok {
-			return 0, fmt.Errorf(
-				"predicate must be bool, not %v",
-				reflect.TypeOf(v))
-		}
-		if !vb {
+		if !pred {
 			break
 		}
 		ctrl, err := w.Block.Run(ctx)
@@ -426,7 +444,12 @@ type Noop struct {
 func (n *Noop) Run(ctx *Context) (Control, error) { return Step, nil }
 func (n *Noop) Discard() bool                     { return true }
 
-func evalPredicate(ctx *Context, p Expr) (bool, error) {
+func evalPredicate(ctx *Context, p Expr) (res bool, err error) {
+	defer func() {
+		if err != nil {
+			err = errorWithPos(ctx, p, err)
+		}
+	}()
 	v, err := p.Eval(ctx)
 	if err != nil {
 		return false, err

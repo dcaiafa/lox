@@ -199,8 +199,9 @@ type _Lexer interface {
 }
 
 type _item struct {
-	State int32
-	Sym   any
+	State  int32
+	Sym    any
+	Bounds _Bounds
 }
 
 type lox struct {
@@ -235,9 +236,17 @@ func (p *parser) parse(lex _Lexer) bool {
 		if action == accept {
 			break
 		} else if action >= 0 { // shift
+			latok, ok := p._lasym.(Token)
+			if !ok {
+				latok = p._lasym.(Error).Token
+			}
 			p._stack.Push(_item{
 				State: action,
 				Sym:   p._lasym,
+				Bounds: _Bounds{
+					Begin: latok,
+					End:   latok,
+				},
 			})
 			p._readToken()
 		} else { // reduce
@@ -245,12 +254,33 @@ func (p *parser) parse(lex _Lexer) bool {
 			termCount := _termCounts[int(prod)]
 			rule := _rules[int(prod)]
 			res := p._act(prod)
+
+			// Compute reduction token bounds.
+			// Trim leading and trailing empty bounds.
+			boundSlice := p._stack.PeekSlice(int(termCount))
+			for len(boundSlice) > 0 && boundSlice[0].Bounds.Empty {
+				boundSlice = boundSlice[1:]
+			}
+			for len(boundSlice) > 0 && boundSlice[len(boundSlice)-1].Bounds.Empty {
+				boundSlice = boundSlice[:len(boundSlice)-1]
+			}
+			var bounds _Bounds
+			if len(boundSlice) > 0 {
+				bounds.Begin = boundSlice[0].Bounds.Begin
+				bounds.End = boundSlice[len(boundSlice)-1].Bounds.End
+			} else {
+				bounds.Empty = true
+			}
+			if !bounds.Empty {
+				p._onBounds(res, bounds.Begin, bounds.End)
+			}
 			p._stack.Pop(int(termCount))
 			topState = p._stack.Peek(0).State
 			nextState, _ := _Find(_goto, topState, rule)
 			p._stack.Push(_item{
-				State: nextState,
-				Sym:   res,
+				State:  nextState,
+				Sym:    res,
+				Bounds: bounds,
 			})
 		}
 	}

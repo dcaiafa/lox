@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	gotoken "go/token"
 	"math/rand"
 	"reflect"
 	"strconv"
@@ -10,6 +11,7 @@ import (
 type Func func(args []any) (any, error)
 
 type Context struct {
+	FileSet *gotoken.FileSet
 	Globals map[string]any
 }
 
