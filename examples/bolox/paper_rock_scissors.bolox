@@ -8,8 +8,9 @@ scissors = 2
 while true {
   compPick = rand(3)
 
-  userPickStr = prompt("Rock({rock}), paper({paper}), scissors({scissors})?")
-  userPick = parse_int(userPickStr)
+  //userPickStr = prompt("Rock({rock}), paper({paper}), scissors({scissors})?")
+  //userPick = parse_int(userPickStr)
+  userPick = 3
   if userPick == nil or userPick < rock or userPick > scissors {
     print("{userPickStr} is not a valid option!")
     continue

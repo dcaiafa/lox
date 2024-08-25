@@ -33,7 +33,7 @@ func (b *baseAST) SetBounds(v Bounds) {
 func (b *baseAST) Discard() bool { return false }
 
 func errorWithPos(ctx *Context, ast AST, err error) error {
-	return fmt.Errorf("%w\nfrom: %v", ctx.FileSet.Position(ast.Bounds().Begin))
+	return fmt.Errorf("%w\nfrom: %v", err, ctx.FileSet.Position(ast.Bounds().Begin))
 }
 
 type Control int

@@ -10,8 +10,7 @@ import (
 	"github.com/dcaiafa/loxlex/simplelexer"
 )
 
-func Parse(filename string, fileData []byte) (*Program, error) {
-	fset := gotoken.NewFileSet()
+func Parse(fset *gotoken.FileSet, filename string, fileData []byte) (*Program, error) {
 	file := fset.AddFile(filename, -1, len(fileData))
 
 	l := simplelexer.New(simplelexer.Config{

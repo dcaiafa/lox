@@ -15,8 +15,9 @@ type Context struct {
 	Globals map[string]any
 }
 
-func NewContext() *Context {
+func NewContext(fs *gotoken.FileSet) *Context {
 	c := &Context{
+		FileSet: fs,
 		Globals: make(map[string]any),
 	}
 

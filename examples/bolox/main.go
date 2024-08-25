@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	gotoken "go/token"
 	"log"
 	"os"
 )
@@ -26,12 +27,14 @@ func main() {
 		log.Fatal(err)
 	}
 
-	program, err := Parse(filename, data)
+	fset := gotoken.NewFileSet()
+
+	program, err := Parse(fset, filename, data)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	ctx := NewContext()
+	ctx := NewContext(fset)
 
 	err = program.Run(ctx)
 	if err != nil {
