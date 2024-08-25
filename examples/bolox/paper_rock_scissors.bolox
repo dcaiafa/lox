@@ -1,0 +1,38 @@
+rock    = 0
+paper   = 1
+scissor = 2
+
+while true {
+  compPick = rand(3)
+  userPick = parse_int(prompt("Rock(0), paper(1), scissor(2)?"))
+  if userPick == nil or userPick < rock or userPick > scissor {
+    print("Invalid option!")
+    continue
+  }
+
+  if compPick == rock {
+    compPickStr = "rock"
+  } elif compPick == paper {
+    compPickStr = "paper"
+  } else {
+    compPickStr = "scissor"
+  }
+
+  print("The computer picked: " + compPickStr)
+
+  if userPick == compPick {
+    print("It is a tie!")
+    continue
+  }
+
+  // Did we win?
+  win = userPick == rock and compPick == scissor or \
+        userPick == paper and compPick == rock or   \
+        userPick == scissor and compPick == paper
+
+  if win {
+    print("You win!")
+  } else {
+    print("You lose!")
+  }
+}

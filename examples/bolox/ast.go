@@ -14,6 +14,7 @@ type Bounds struct {
 type AST interface {
 	Bounds() Bounds
 	SetBounds(b Bounds)
+	Discard() bool
 }
 
 type baseAST struct {
@@ -28,67 +29,85 @@ func (b *baseAST) SetBounds(v Bounds) {
 	b.bounds = v
 }
 
-type Program struct {
+func (b *baseAST) Discard() bool { return false }
+
+type Control int
+
+const (
+	Step Control = iota
+	Continue
+	Return
+)
+
+type Statement interface {
 	AST
+	Run(ctx *Context) (Control, error)
+}
+
+type Program struct {
+	baseAST
 	Block *Block
 }
 
 func (p *Program) Run(ctx *Context) error {
-	return p.Block.Run(ctx)
-}
-
-type Block struct {
-	AST
-	Statements []Statement
-}
-
-func (b *Block) Run(ctx *Context) error {
-	for _, stmt := range b.Statements {
-		err := stmt.Run(ctx)
-		if err != nil {
-			return err
-		}
+	step, err := p.Block.Run(ctx)
+	if err != nil {
+		return err
 	}
+
+	switch step {
+	case Continue:
+		return fmt.Errorf("continue used outside of while")
+	case Step:
+	default:
+		panic("unreachable")
+	}
+
 	return nil
 }
 
-type Statement interface {
-	AST
-	Run(ctx *Context) error
-	Discard() bool
+type Block struct {
+	baseAST
+	Statements []Statement
 }
 
-type dontDiscard struct{}
-
-func (d dontDiscard) Discard() bool { return false }
+func (b *Block) Run(ctx *Context) (Control, error) {
+	for _, stmt := range b.Statements {
+		ctrl, err := stmt.Run(ctx)
+		if err != nil {
+			return 0, err
+		}
+		if ctrl != Step {
+			return ctrl, nil
+		}
+	}
+	return Step, nil
+}
 
 type FuncCallStatement struct {
-	AST
-	dontDiscard
-
+	baseAST
 	FuncCall *FuncCall
 }
 
-func (s *FuncCallStatement) Run(ctx *Context) error {
+func (s *FuncCallStatement) Run(ctx *Context) (Control, error) {
 	_, err := s.FuncCall.Eval(ctx)
-	return err
+	return Step, err
 }
 
 type VarAssign struct {
-	AST
-	dontDiscard
+	baseAST
 
 	VarName string
 	Value   Expr
 }
 
-func (a *VarAssign) Run(ctx *Context) error {
+func (a *VarAssign) Run(ctx *Context) (Control, error) {
 	v, err := a.Value.Eval(ctx)
 	if err != nil {
-		return err
+		return Step, err
 	}
 	ctx.SetGlobal(a.VarName, v)
-	return nil
+	return Step, nil
 }
 
 type Expr interface {
@@ -187,6 +206,13 @@ func (e *BinaryExpr) Eval(ctx *Context) (any, error) {
 		return nil, err
 	}
 
+	switch e.Op {
+	case OpEq:
+		return va == vb, nil
+	case OpNE:
+		return va != vb, nil
+	}
+
 	if a, b, ok := castBinaryExpr[int](va, vb); ok {
 		switch e.Op {
 		case OpPlus:
@@ -208,10 +234,6 @@ func (e *BinaryExpr) Eval(ctx *Context) (any, error) {
 			return a > b, nil
 		case OpGE:
 			return a >= b, nil
-		case OpEq:
-			return a == b, nil
-		case OpNE:
-			return a != b, nil
 		default:
 			panic("unreachable")
 		}
@@ -227,19 +249,6 @@ func (e *BinaryExpr) Eval(ctx *Context) (any, error) {
 			return a > b, nil
 		case OpGE:
 			return a >= b, nil
-		case OpEq:
-			return a == b, nil
-		case OpNE:
-			return a != b, nil
-		default:
-			return nil, fmt.Errorf("operation not supported by string")
-		}
-	} else if a, b, ok := castBinaryExpr[bool](va, vb); ok {
-		switch e.Op {
-		case OpEq:
-			return a == b, nil
-		case OpNE:
-			return a != b, nil
 		default:
 			return nil, fmt.Errorf("operation not supported by string")
 		}
@@ -318,38 +327,115 @@ func castBinaryExpr[T any](a, b any) (ca, cb T, ok bool) {
 
 type While struct {
 	baseAST
-	dontDiscard
 
 	Pred  Expr
 	Block *Block
 }
 
-func (w *While) Run(ctx *Context) error {
+func (w *While) Run(ctx *Context) (Control, error) {
 	for {
 		v, err := w.Pred.Eval(ctx)
 		if err != nil {
-			return err
+			return 0, err
 		}
 		vb, ok := v.(bool)
 		if !ok {
-			return fmt.Errorf(
-				"while predicate must be bool, not %v",
+			return 0, fmt.Errorf(
+				"predicate must be bool, not %v",
 				reflect.TypeOf(v))
 		}
 		if !vb {
 			break
 		}
-		err = w.Block.Run(ctx)
+		ctrl, err := w.Block.Run(ctx)
 		if err != nil {
-			return err
+			return 0, err
+		}
+		switch ctrl {
+		case Continue:
+			continue
+		case Step:
+		default:
+			panic("unreachable")
 		}
 	}
-	return nil
+	return Step, nil
+}
+
+type ContinueStatement struct {
+	baseAST
+}
+
+func (s *ContinueStatement) Run(ctx *Context) (Control, error) {
+	return Continue, nil
+}
+
+type IfStatement struct {
+	baseAST
+
+	Pred  Expr
+	Block *Block
+	Elifs []*Elif
+	Else  *Else
+}
+
+func (s *IfStatement) Run(ctx *Context) (Control, error) {
+	v, err := evalPredicate(ctx, s.Pred)
+	if err != nil {
+		return 0, err
+	}
+	if v {
+		return s.Block.Run(ctx)
+	}
+
+	for _, elif := range s.Elifs {
+		v, err := evalPredicate(ctx, elif.Pred)
+		if err != nil {
+			return 0, err
+		}
+		if v {
+			return elif.Block.Run(ctx)
+		}
+	}
+
+	if s.Else != nil {
+		return s.Else.Block.Run(ctx)
+	}
+
+	return Step, nil
+}
+
+type Elif struct {
+	baseAST
+
+	Pred  Expr
+	Block *Block
+}
+
+type Else struct {
+	baseAST
+
+	Block *Block
 }
 
 type Noop struct {
 	baseAST
 }
 
-func (n *Noop) Run(ctx *Context) error { return nil }
-func (n *Noop) Discard() bool          { return true }
+func (n *Noop) Run(ctx *Context) (Control, error) { return Step, nil }
+func (n *Noop) Discard() bool                     { return true }
+
+func evalPredicate(ctx *Context, p Expr) (bool, error) {
+	v, err := p.Eval(ctx)
+	if err != nil {
+		return false, err
+	}
+
+	vb, ok := v.(bool)
+	if !ok {
+		return false, fmt.Errorf(
+			"predicate must be bool, not %T", v)
+	}
+
+	return vb, nil
+}

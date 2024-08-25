@@ -1,18 +1,32 @@
 package main
 
 import (
-	"io"
+	"flag"
+	"fmt"
 	"log"
 	"os"
 )
 
 func main() {
-	data, err := io.ReadAll(os.Stdin)
+	flag.Usage = func() {
+		fmt.Fprintln(os.Stderr, "Usage: bolox <source.bolox>")
+		os.Exit(1)
+	}
+
+	flag.Parse()
+
+	if flag.NArg() != 1 {
+		flag.Usage()
+	}
+
+	filename := flag.Arg(0)
+
+	data, err := os.ReadFile(filename)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	program, err := Parse("program.bolox", data)
+	program, err := Parse(filename, data)
 	if err != nil {
 		log.Fatal(err)
 	}

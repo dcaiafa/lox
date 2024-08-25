@@ -2,7 +2,9 @@ package main
 
 import (
 	"fmt"
+	"math/rand"
 	"reflect"
+	"strconv"
 )
 
 type Func func(args []any) (any, error)
@@ -15,7 +17,12 @@ func NewContext() *Context {
 	c := &Context{
 		Globals: make(map[string]any),
 	}
+
 	c.RegisterFunc("print", builtinPrint)
+	c.RegisterFunc("rand", builtinRand)
+	c.RegisterFunc("prompt", builtinPrompt)
+	c.RegisterFunc("parse_int", builtinParseInt)
+
 	return c
 }
 
@@ -49,4 +56,45 @@ func (c *Context) Call(funcName string, args []any) (any, error) {
 func builtinPrint(args []any) (any, error) {
 	fmt.Println(args...)
 	return nil, nil
+}
+
+func builtinRand(args []any) (any, error) {
+	if len(args) != 1 {
+		return nil, fmt.Errorf("rand expects one argument")
+	}
+	arg0, ok := args[0].(int)
+	if !ok {
+		return nil, fmt.Errorf("argument #1 must be an int")
+	}
+	n := rand.Intn(arg0)
+	return int(n), nil
+}
+
+func builtinParseInt(args []any) (any, error) {
+	if len(args) != 1 {
+		return nil, fmt.Errorf("parse_int expects one argument")
+	}
+	arg0, ok := args[0].(string)
+	if !ok {
+		return nil, fmt.Errorf("argument #1 must be an int")
+	}
+	n, err := strconv.Atoi(arg0)
+	if err != nil {
+		return nil, nil
+	}
+	return n, nil
+}
+
+func builtinPrompt(args []any) (any, error) {
+	if len(args) != 1 {
+		return nil, fmt.Errorf("parse_int expects one argument")
+	}
+	arg0, ok := args[0].(string)
+	if !ok {
+		return nil, fmt.Errorf("argument #1 must be an int")
+	}
+	fmt.Print(arg0 + " ")
+	var v string
+	fmt.Scanf("%s", &v)
+	return v, nil
 }

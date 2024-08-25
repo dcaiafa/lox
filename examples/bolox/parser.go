@@ -70,6 +70,15 @@ func (p *parser) on_stmt(stmt Statement, _ Token) Statement {
 	return stmt
 }
 
+func (p *parser) on_stmt__kw(kw Token, _ Token) Statement {
+	switch kw.Type {
+	case CONTINUE:
+		return &ContinueStatement{}
+	default:
+		panic("unreachable")
+	}
+}
+
 func (p *parser) on_stmt__nl(_ Token) Statement {
 	return &Noop{}
 }
@@ -84,6 +93,28 @@ func (p *parser) on_while_stmt(_ Token, e Expr, _ Token, b *Block, _ Token) *Whi
 func (p *parser) on_func_call_stmt(fc *FuncCall) Statement {
 	return &FuncCallStatement{
 		FuncCall: fc,
+	}
+}
+
+func (p *parser) on_if_stmt(_ Token, pred Expr, _ Token, b *Block, _ Token, elifs []*Elif, els *Else) *IfStatement {
+	return &IfStatement{
+		Pred:  pred,
+		Block: b,
+		Elifs: elifs,
+		Else:  els,
+	}
+}
+
+func (p *parser) on_elif(_ Token, pred Expr, _ Token, b *Block, _ Token) *Elif {
+	return &Elif{
+		Pred:  pred,
+		Block: b,
+	}
+}
+
+func (p *parser) on_else(_, _ Token, b *Block, _ Token) *Else {
+	return &Else{
+		Block: b,
 	}
 }
 
@@ -171,6 +202,15 @@ func (p *parser) on_literal(l Token) *Literal {
 
 	case STR:
 		return &Literal{Val: string(l.Str[1 : len(l.Str)-1])}
+
+	case TRUE:
+		return &Literal{Val: true}
+
+	case FALSE:
+		return &Literal{Val: false}
+
+	case NIL:
+		return &Literal{Val: nil}
 
 	default:
 		panic("invalid token type")
