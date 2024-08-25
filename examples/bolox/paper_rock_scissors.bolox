@@ -1,15 +1,17 @@
 // Rock Paper Scissors
 // Powered by Bolox
 
-rock    = 0
-paper   = 1
-scissor = 2
+rock     = 0
+paper    = 1
+scissors = 2
 
 while true {
   compPick = rand(3)
-  userPick = parse_int(prompt("Rock(0), paper(1), scissor(2)?"))
-  if userPick == nil or userPick < rock or userPick > scissor {
-    print("Invalid option!")
+
+  userPickStr = prompt("Rock({rock}), paper({paper}), scissors({scissors})?")
+  userPick = parse_int(userPickStr)
+  if userPick == nil or userPick < rock or userPick > scissors {
+    print("{userPickStr} is not a valid option!")
     continue
   }
 
@@ -18,20 +20,19 @@ while true {
   } elif compPick == paper {
     compPickStr = "paper"
   } else {
-    compPickStr = "scissor"
+    compPickStr = "scissors"
   }
 
-  print("The computer picked: " + compPickStr)
+  print("The computer picked: {compPickStr}")
 
   if userPick == compPick {
     print("It is a tie!")
     continue
   }
 
-  // Did we win?
-  win = userPick == rock and compPick == scissor or \
-        userPick == paper and compPick == rock or   \
-        userPick == scissor and compPick == paper
+  win = userPick == rock and compPick == scissors or \
+        userPick == paper and compPick == rock or    \
+        userPick == scissors and compPick == paper
 
   if win {
     print("You win!")

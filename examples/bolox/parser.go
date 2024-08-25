@@ -191,7 +191,7 @@ func (p *parser) on_var_ref(n Token) *VarRef {
 	}
 }
 
-func (p *parser) on_literal(l Token) *Literal {
+func (p *parser) on_literal__tok(l Token) Expr {
 	switch l.Type {
 	case INT:
 		n, err := strconv.Atoi(string(l.Str))
@@ -199,9 +199,6 @@ func (p *parser) on_literal(l Token) *Literal {
 			panic(err)
 		}
 		return &Literal{Val: n}
-
-	case STR:
-		return &Literal{Val: string(l.Str[1 : len(l.Str)-1])}
 
 	case TRUE:
 		return &Literal{Val: true}
@@ -215,4 +212,24 @@ func (p *parser) on_literal(l Token) *Literal {
 	default:
 		panic("invalid token type")
 	}
+}
+
+func (p *parser) on_literal__string(str Expr) Expr {
+	return str
+}
+
+func (p *parser) on_string(_ Token, parts []Expr, _ Token) Expr {
+	return &String{
+		Parts: parts,
+	}
+}
+
+func (p *parser) on_string_part__char_seq(cs Token) Expr {
+	return &StringCharSeq{
+		Seq: string(cs.Str),
+	}
+}
+
+func (p *parser) on_string_part__expr(_ Token, e Expr, _ Token) Expr {
+	return e
 }

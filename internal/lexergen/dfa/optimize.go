@@ -2,9 +2,9 @@ package dfa
 
 import (
 	"github.com/dcaiafa/lox/internal/base/assert"
-	"github.com/dcaiafa/lox/internal/lexergen/nfa"
 	"github.com/dcaiafa/lox/internal/base/set"
 	"github.com/dcaiafa/lox/internal/base/stablemap"
+	"github.com/dcaiafa/lox/internal/lexergen/nfa"
 )
 
 type partitions struct {
@@ -63,6 +63,12 @@ func optimize(d *DFA) {
 		} else {
 			p.Add(s, 0)
 		}
+	}
+
+	if p.Count() < 2 {
+		// All states are accepting.
+		// DFA can't be optimized any futher.
+		return
 	}
 
 	// Sub-partition

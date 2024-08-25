@@ -4,6 +4,7 @@ import (
 	"fmt"
 	gotoken "go/token"
 	"reflect"
+	"strings"
 )
 
 type Bounds struct {
@@ -438,4 +439,31 @@ func evalPredicate(ctx *Context, p Expr) (bool, error) {
 	}
 
 	return vb, nil
+}
+
+type String struct {
+	baseAST
+
+	Parts []Expr
+}
+
+func (s *String) Eval(ctx *Context) (any, error) {
+	var res strings.Builder
+	for _, part := range s.Parts {
+		v, err := part.Eval(ctx)
+		if err != nil {
+			return nil, err
+		}
+		fmt.Fprintf(&res, "%v", v)
+	}
+	return res.String(), nil
+}
+
+type StringCharSeq struct {
+	baseAST
+	Seq string
+}
+
+func (s *StringCharSeq) Eval(ctx *Context) (any, error) {
+	return s.Seq, nil
 }

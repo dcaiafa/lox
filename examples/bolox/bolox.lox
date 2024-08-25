@@ -22,8 +22,9 @@ OPAREN = '('
 CPAREN = ')'
 COMMA  = ','
 ASSIGN = '='
-OCURLY = '{'
-CCURLY = '}'
+
+OCURLY = '{' @push_mode()
+CCURLY = '}' @pop_mode
 
 // Operators
 PLUS   = '+'
@@ -36,9 +37,14 @@ GT     = '>'
 GE     = '>='
 EQ     = '=='
 
-// Literals
 INT = '0' | [1-9] [0-9]*
-STR = '"' ~[\n"]* '"'
+
+STR_BEGIN = '"' @push_mode(String)
+@mode String {
+  STR_END = '"' @pop_mode
+  @frag '{' @push_mode() @emit(OCURLY)
+  CHAR_SEQ = (~["\n{}\\] | '\\' ["nrt{}\\])*
+}
 
 NL = '\n'
 
@@ -104,4 +110,9 @@ simple_expr = func_call
 
 var_ref = ID
 
-literal = INT | STR | TRUE | FALSE | NIL
+literal = INT | TRUE | FALSE | NIL | string
+
+string = STR_BEGIN string_part* STR_END
+
+string_part = CHAR_SEQ
+            | '{' expr '}'
