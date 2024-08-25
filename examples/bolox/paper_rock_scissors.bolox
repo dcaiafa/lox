@@ -1,3 +1,6 @@
+// Rock Paper Scissors
+// Powered by Bolox
+
 rock    = 0
 paper   = 1
 scissor = 2

@@ -2,6 +2,21 @@
 
 @lexer
 
+// Keywords
+WHILE = 'while'
+OR    = 'or'
+AND   = 'and'
+TRUE  = 'true'
+FALSE = 'false'
+IF    = 'if'
+ELIF  = 'elif'
+ELSE  = 'else'
+NIL   = 'nil'
+CONTINUE = 'continue'
+
+// Identifier
+ID = [A-Za-z_] [A-Za-z0-9_]*
+
 // Misc.
 OPAREN = '('
 CPAREN = ')'
@@ -25,21 +40,6 @@ EQ     = '=='
 INT = '0' | [1-9] [0-9]*
 STR = '"' ~[\n"]* '"'
 
-// Keywords
-WHILE = 'while'
-OR    = 'or'
-AND   = 'and'
-TRUE  = 'true'
-FALSE = 'false'
-IF    = 'if'
-ELIF  = 'elif'
-ELSE  = 'else'
-NIL   = 'nil'
-CONTINUE = 'continue'
-
-// Identifier
-ID = [A-Za-z_] [A-Za-z0-9_]*
-
 NL = '\n'
 
 @macro WS = [ \r\t]
@@ -59,6 +59,10 @@ NL = '\n'
 @start program = block
                | @error
 
+// N.B. The '*!' cardinality works the same as '*' but the parser will discard
+// the extra NLs because Noop implements Discard() => true. It is a simple
+// optimization where we can still use '*' without having to worry about using
+// too much memory parsing a file full of empty lines.
 block = stmt*!
 
 stmt = func_call_stmt NL

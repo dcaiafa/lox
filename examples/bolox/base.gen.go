@@ -3,34 +3,34 @@ package main
 const (
 	EOF      int = 0
 	ERROR    int = 1
-	OPAREN   int = 2
-	CPAREN   int = 3
-	COMMA    int = 4
-	ASSIGN   int = 5
-	OCURLY   int = 6
-	CCURLY   int = 7
-	PLUS     int = 8
-	MINUS    int = 9
-	TIMES    int = 10
-	DIV      int = 11
-	LT       int = 12
-	LE       int = 13
-	GT       int = 14
-	GE       int = 15
-	EQ       int = 16
-	INT      int = 17
-	STR      int = 18
-	WHILE    int = 19
-	OR       int = 20
-	AND      int = 21
-	TRUE     int = 22
-	FALSE    int = 23
-	IF       int = 24
-	ELIF     int = 25
-	ELSE     int = 26
-	NIL      int = 27
-	CONTINUE int = 28
-	ID       int = 29
+	WHILE    int = 2
+	OR       int = 3
+	AND      int = 4
+	TRUE     int = 5
+	FALSE    int = 6
+	IF       int = 7
+	ELIF     int = 8
+	ELSE     int = 9
+	NIL      int = 10
+	CONTINUE int = 11
+	ID       int = 12
+	OPAREN   int = 13
+	CPAREN   int = 14
+	COMMA    int = 15
+	ASSIGN   int = 16
+	OCURLY   int = 17
+	CCURLY   int = 18
+	PLUS     int = 19
+	MINUS    int = 20
+	TIMES    int = 21
+	DIV      int = 22
+	LT       int = 23
+	LE       int = 24
+	GT       int = 25
+	GE       int = 26
+	EQ       int = 27
+	INT      int = 28
+	STR      int = 29
 	NL       int = 30
 )
 
@@ -40,6 +40,28 @@ func _TokenToString(t int) string {
 		return "EOF"
 	case ERROR:
 		return "ERROR"
+	case WHILE:
+		return "WHILE"
+	case OR:
+		return "OR"
+	case AND:
+		return "AND"
+	case TRUE:
+		return "TRUE"
+	case FALSE:
+		return "FALSE"
+	case IF:
+		return "IF"
+	case ELIF:
+		return "ELIF"
+	case ELSE:
+		return "ELSE"
+	case NIL:
+		return "NIL"
+	case CONTINUE:
+		return "CONTINUE"
+	case ID:
+		return "ID"
 	case OPAREN:
 		return "OPAREN"
 	case CPAREN:
@@ -74,28 +96,6 @@ func _TokenToString(t int) string {
 		return "INT"
 	case STR:
 		return "STR"
-	case WHILE:
-		return "WHILE"
-	case OR:
-		return "OR"
-	case AND:
-		return "AND"
-	case TRUE:
-		return "TRUE"
-	case FALSE:
-		return "FALSE"
-	case IF:
-		return "IF"
-	case ELIF:
-		return "ELIF"
-	case ELSE:
-		return "ELSE"
-	case NIL:
-		return "NIL"
-	case CONTINUE:
-		return "CONTINUE"
-	case ID:
-		return "ID"
 	case NL:
 		return "NL"
 	default:
