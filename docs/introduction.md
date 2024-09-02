@@ -157,5 +157,5 @@ func (p *myParser) on_number__negative(_ Token, n Token) int {
 }
 ```
 ### What next?
-* You can look at more complex examples.
-* Take a look at the lexer and parser section references.
+* Check out the lexer and parser section references.
+* Explore more complex examples.
