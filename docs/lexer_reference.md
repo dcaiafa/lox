@@ -24,10 +24,11 @@ keyword `@lexer`.
 
 ### Declaration Order
 
-The order of lexer declarations is important. It is common for a sequence of
-characters to match more than one lexical expressions. In this case, the
-declaration containing the matching lexical expression that was defined first
-lexicographically wins.
+The order of lexer declarations is crucial because it determines which token is
+emitted when a sequence of characters matches more than one lexical expression.
+In cases where multiple expressions could match the same input, the lexer will
+emit the token corresponding to the first matching expression encountered in the
+declaration order.
 
 For example, given the following grammar:
 ```lox
@@ -37,9 +38,12 @@ TOO_GOOD = '2good'
 NUMBER   = [0-9]+
 ID       = [a-z0-9]+
 ```
-The input `2` emits a `NUMBER`, `2x` emits an `ID`, and `2good` emits
-`TOO_GOOD`. But if `TOO_GOOD` was defined after `ID`, then `TOO_GOOD` would
-never be emitted. 
+* The input `2` emits `NUMBER`.
+* The input `2x` emits `ID`.
+* The input `2good` emits `TOO_GOOD`.
+
+However, if `TOO_GOOD` were defined after `ID`, then `TOO_GOOD` would never be emitted
+because `ID` would match `2good` first.
 
 ### Tokens
 
