@@ -17,9 +17,6 @@ keyword `@lexer`.
 
 // Lexer declarations
 
-@parser
-
-// Parser declarations
 ```
 
 ### Declaration Order
@@ -47,7 +44,7 @@ because `ID` would match `2good` first.
 
 ### Tokens
 
-Tokens are the fundamental lexer building block. They define a lexical
+Token rules are the fundamental lexer building block. They define a lexical
 expression that once recognized by the lexer state machine causes that token to
 be emitted.
 
@@ -61,7 +58,7 @@ Where:
 * `<expression>` is a [lexical expression](#lexical-expressions).
 * `<action>` is a [lexical-action](#lexical-actions).
 
-Tokens carry the action `@emit(NAME)` implicitly.
+Tokens carry the [action](#lexical-actions) `@emit(NAME)` implicitly.
 
 ### Fragments
 
@@ -110,6 +107,38 @@ Where:
 
 ### Modes
 
+A mode is a group of lexical expressions that allows you to switch between
+different sets of tokens or fragments depending on the context. Tokens or
+fragments declared outside of any specific mode belong to the default mode. The
+`@push_mode` and `@pop_mode` [actions](#lexical-actions) are used to switch
+between modes during lexing.
+
+Example:
+```lox
+@lexer
+PLUS   = '+'
+MINUS  = '-'
+OPAREN = '(' @push_mode(Alt)
+@mode Alt {
+    DASH   = '-'
+    CPAREN = ')' @pop_mode
+}
+```
+Given the input sequence `+-(--)-+`, the lexer would emit the following tokens:
+`PLUS`, `MINUS`, `OPAREN`, `DASH`, `DASH`, `CPAREN`, `MINUS`, `PLUS`. 
+
+**Explanation:**
+* After emitting `OPAREN`, the lexer switches to `Alt` mode, where `-` is now
+  recognized as `DASH` instead of `MINUS`.
+* In `Alt` mode, encountering a `+` would result in an error since `+` is not
+  defined in Alt.
+* When `CPAREN` is encountered, the lexer pops `Alt` mode, returning to the
+  default mode, where `-` is once again recognized as `MINUS` and `+` as `PLUS`.
+
+The lexer maintains a stack of modes, starting in the default mode. It is
+possible to push the default mode onto the stack by using `@push_mode()` without
+specifying a mode name.
+
 ## Common Elements
 
 ### Lexical Expressions
@@ -126,7 +155,7 @@ the lexer will match sequences of characters.
 | *expr*`\|`*expr* | Match either expression (e.g. `[1-9][0-9]* \| 'pi'`).
 | `(`*expr*`)` | Group an expression (e.g. `('foo' \| 'bar')*`).
 | *expr*`?` | Optionally match expression (e.g. `[1-9][0-9]*('.'[0-9]+)?` specifies a number with an optional fractional part).
-| *expr*`*` | Match the expression zero or more times (e.g. `[1-9][0-9]*` matches sequences like `1` and `10`).
+| *expr*`*` | Match the expression zero or more times (e.g. `[1-9][0-9]*` matches sequences like `1` and `123`).
 | *expr*`+` | Match the expression one or more times (e.g. `[1-9][0-9]+` matches `22`, `109`, but not `1`).
 
 ### Lexical Names
@@ -147,7 +176,7 @@ token or a fragment.
 
 | Keyword | Description |
 | ------- | ----------- |
-| `@emit(TOKEN)` | Emit the token with the provided name. Only valid in fragments.
+| `@emit(TOKEN)` | Emit the token referenced by the given name. Only valid in fragments.
 | `@discard` | Discard all accumulated characters (e.g. the rule `@frag [ \n\r\t]+ @discard` will discard whitespaces)
 | `@push_mode(MODE?)` | Push the current mode to the stack and enter the mode with name `MODE`. If `MODE` is not provided, it will enter the default mode.
 | `@pop_mode` | Pop the name on the top of the mode stack and make it the current mode.
@@ -165,3 +194,99 @@ token or a fragment.
 | `\uXXXX` | Double byte unicode character in hexadecimal (e.g. `\u4E16` is `世`). |
 | `\UXXXXXXXX` | Four byte unicode character (e.g. `\UF0938583` is `𓅃`). |
 * **Must not** be one of the reserved names: `EOF`, `ERROR`.
+
+## Examples
+
+### Keywords and Identifiers
+
+```lox
+// Keywords
+WHILE    = 'while'
+CONTINUE = 'continue'
+IF       = 'if'
+ELSE     = 'else'
+
+// Identifier
+ID = [A-Za-z_] [A-Za-z0-9_]*
+```
+Keywords are often specific cases of the identifier lexical expression. If this
+is the case in your grammar, ensure that you declare the keywords before the
+identifier. Otherwise, the identifier will supersede all keywords, causing the
+lexer to recognize them as identifiers instead of their respective keyword
+tokens.
+
+### Number Literals
+```lox
+@macro ONE_NINE = [1-9]
+@macro DIGIT    = '0' | ONE_NINE
+@macro INTEGER  = DIGIT
+                | ONE_NINE DIGIT+
+                | '-' DIGIT
+                | '-' ONE_NINE DIGIT+
+@macro FRACTION = '.' DIGIT+
+@macro EXPONENT = [eE] [+-]? ONE_NINE DIGIT*
+NUMBER = INTEGER FRACTION? EXPONENT?
+```
+This example defines a `NUMBER` literal that includes an integer part and
+optional fraction and exponent parts. Macros are used to break the token
+declaration into smaller, more readable components.
+
+### Line Continuation
+
+```lox
+NL = '\n'
+@frag '\\' [ \r\n\t]* '\n' @discard
+```
+In languages where newlines are used for statement termination, you might need a
+mechanism to allow statements to span multiple lines. The example above
+demonstrates how to handle this using a backslash (`\`) as a line continuation
+character.
+
+**Explanation:**
+* **NL Token**: The `NL` token represents a newline character (`\n`).
+* **Line Continuation Fragment**: The fragment `@frag '\\' [ \r\n\t]* '\n' @discard`
+  handles the line continuation. When a backslash (`\`) appears at the end of a
+  line, followed by optional whitespace, the newline character is discarded,
+  preventing it from being emitted as an `NL` token.
+
+This setup allows the lexer to treat a backslash followed by a newline as a
+continuation of the same statement, effectively ignoring the newline.
+
+### String interpolation
+
+```lox
+NUM = [0-9]+
+PLUS = '+'
+
+STR_BEGIN = '"' @push_mode(String)
+@mode String {
+  STR_END = '"' @pop_mode
+  CHAR_SEQ = (~["\n{}\\] | '\\' ["nrt{}\\])*
+  OCURLY = '{' @push_mode() @emit(OCURLY)
+}
+CCURLY = '}' @pop_mode
+```
+This example demonstrates how to implement string interpolation using modes in a
+lexer. The grammar allows for embedded expressions within strings, as seen in
+the input  `"1 + 2 = {1+2}"`, which would be parsed as `STR_BEGIN`,
+`CHAR_SEQ(1 + 2 =)`, `OCURLY`, `NUM(1)`, `PLUS`, `NUM(2)`, `CCURLY`.
+
+**Explanation:**
+
+* **NUM and PLUS**: These tokens represent numbers and the plus sign within the
+  interpolated expression.
+* **STR_BEGIN and STR_END**: These tokens mark the beginning and end of a
+  string. `STR_BEGIN` pushes the lexer into `String` mode, while `STR_END` pops
+  the mode, returning to the previous state.
+* **CHAR_SEQ**: This fragment matches sequences of characters within the string,
+  while also handling escaped characters such as `\n`, `\t`, `{`, and `}`.
+* **OCURLY**: The opening curly brace (`{`) within the String mode triggers a
+  mode push, allowing the lexer to parse the embedded expression. It also emits
+  the `OCURLY` token.
+* **CCURLY**: The closing curly brace (`}`) pops the current mode, signaling the
+  end of the interpolated expression.
+
+This setup provides a clear and concise way to handle string interpolation,
+ensuring that expressions within strings are correctly parsed and tokens are
+emitted appropriately.
+
