@@ -2,14 +2,50 @@
 
 The purpose of a lexer is to break the input into a series of tokens, providing
 the parser with the fundamental building blocks it can expect. In a lexer
-section, the most fundamental declaration is the token rule. However, a lexer
+section, the most common declaration is the token rule. However, a lexer
 can also define other constructs, such as fragments, macros, and modes, which
 help model more complex grammars and facilitate more sophisticated tokenization
 strategies.
 
 ## Declarations
 
+Lexer declarations are contained in a lexer section which is signaled using the
+keyword `@lexer`.
+
+```lox
+@lexer
+
+// Lexer declarations
+
+@parser
+
+// Parser declarations
+```
+
+### Declaration Order
+
+The order of lexer declarations is important. It is common for a sequence of
+characters to match more than one lexical expressions. In this case, the
+declaration containing the matching lexical expression that was defined first
+lexicographically wins.
+
+For example, given the following grammar:
+```lox
+@lexer
+
+TOO_GOOD = '2good'
+NUMBER   = [0-9]+
+ID       = [a-z0-9]+
+```
+The input `2` emits a `NUMBER`, `2x` emits an `ID`, and `2good` emits
+`TOO_GOOD`. But if `TOO_GOOD` was defined after `ID`, then `TOO_GOOD` would
+never be emitted. 
+
 ### Tokens
+
+Tokens are the fundamental lexer building block. They define a lexical
+expression that once recognized by the lexer state machine causes that token to
+be emitted.
 
 A token rule follows this format:
 
@@ -20,6 +56,8 @@ Where:
 * `NAME` is a [lexical name](#lexical-names).
 * `<expression>` is a [lexical expression](#lexical-expressions).
 * `<action>` is a [lexical-action](#lexical-actions).
+
+Tokens carry the action `@emit(NAME)` implicitly.
 
 ### Fragments
 
@@ -65,11 +103,6 @@ A macro rule follows this format:
 Where:
 * `NAME` is a [lexical name](#lexical-names).
 * `<expression>` is a [lexical expression](#lexical-expressions).
-
-
-
-
-
 
 ### Modes
 
