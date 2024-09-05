@@ -171,18 +171,18 @@ elements.
 
 ## Conflicts
 
-If you try to process the following grammar snippet with `lox` it fail with an
-error like `grammar has conflicts`. The problem is that this grammar is
+If you process the following grammar snippet with `lox`, it will fail with the
+error: `grammar has conflicts`. The issue arises because this grammar is
 ambiguous:
 
 ```lox
-expression = expression `+` expression
-           | expression `*` expression
-           | NUMBER
+expr = expr '+' expr
+     | expr '*' expr
+     | NUMBER
 ```
 
-Consider the input `1 + 2 * 3` where numbers are parsed as the token `NUMBER`.
-Let's try to parse this input, step by step.
+Consider parsing the input `1 + 2 * 3`, where numbers are parsed as the token
+`NUMBER`. Let's break it down step by step:
 
 ```
 - Lookahead: NUMBER(1)
@@ -191,23 +191,100 @@ Let's try to parse this input, step by step.
 
 - Lookahead: +
   Stack: NUMBER(1)
-  Action: reduce NUMBER(1) => expression
+  Action: reduce NUMBER(1) => expr
 
 - Lookahead: +
-  Stack: expression
+  Stack: expr
   Action: shift +
 
 - Lookahead: NUMBER(2)
-  Stack: expression +
+  Stack: expr +
   Action: shift NUMBER(2)
 
 - Lookahead: *
-  Stack: expression + expression
+  Stack: expr + expr
   Action: ???
 ```
-What action should the parser take at this point? Should it shift the `*` or
-should it reduce `expression + expression`? It is not clear what to do from the
-grammar alone. This is called a shift-reduce conflict (the other class of
-conflicts is called reduce-reduce conflicts).
+At this point, the parser encounters ambiguity. Should it shift the `*` or
+reduce `expr + expr`? The grammar doesn't specify, creating what's called a
+*shift-reduce conflict*. Similarly, if the parser has to choose between two or
+more reduce actions at a particular state, it encounters a *reduce-reduce*
+conflict.
 
+One way to resolve this is by refactoring the grammar:
 
+```lox
+expr = expr '+' term
+     | term
+
+term = term '*' factor
+     | factor
+
+factor = number
+
+number = NUMBER
+       | '-' NUMBER
+```
+
+While this approach resolves conflicts, it can become unwieldy for complex
+grammars. A more scalable solution is to use **precedence qualifiers**.
+
+### Precedence Qualifiers
+
+Here's the original grammar, now unambiguous due to precedence qualifiers:
+
+```lox
+expr = expr '+' expr  @left(1)
+     | expr '*' expr  @left(2)
+     | NUMBER
+```
+
+With the precedence levels specified, `expr * expr` now takes higher
+precedence than `expr + expr`. This resolves the ambiguity:
+```
+- Lookahead: *
+  Stack: expr + expr
+  Action: shift *
+```
+
+N.B. Precedence qualifiers in Lox are used to resolve ambiguities **within a
+single rule**. However, if an ambiguity spans multiple rules, precedence
+qualifiers will be ignored, and you will need to resolve the conflict through
+grammar refactoring or other means.
+
+### Left vs Right Associativity
+When resolving conflicts in operator precedence, it's also important to consider
+the associativity of the operators. Associativity determines how operators of
+the same precedence level are grouped in the absence of parentheses.
+
+* **Left-associative operators** (`@left`) are grouped from the left.
+* **Right-associative operators** (`@right`) are grouped from the right.
+
+#### Left Associativity (`@left`)
+For left-associative operators like addition and subtraction, when multiple
+instances of the operator appear in a row, the parser groups them from the left.
+
+Example:
+```lox
+expr = expr '+' expr  @left(1)
+     | NUMBER
+```
+Given the input `1 + 2 + 3`, the parser processes it like this:
+```
+(1 + 2) + 3
+```
+This is due to the `@left` qualifier, which causes the parser to reduce the
+first `expr` before considering the next.
+
+#### Right Associativity (`@right`)
+For right-associative operators like exponentiation or assignment, the parser groups the expressions from the right.
+
+Example:
+```lox
+expr = expr '^' expr  @right(1)
+     | NUMBER
+```
+For the input `2 ^ 3 ^ 4`, the parser groups it like this:
+```
+2 ^ (3 ^ 4)
+```

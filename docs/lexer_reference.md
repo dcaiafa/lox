@@ -152,6 +152,7 @@ the lexer will match sequences of characters.
 | 'literal'  | Match a sequence of characters (e.g. 'func', '!=', ','). Special characters must be [escaped](#literal-escaping-rules).
 | [*char_class*] | Match one of the characters in the set. `x-y` specifies a range of characters (e.g. `[A-Ca-c]` is equivalent to `[ABCabc]`). [Escaped](#literal-escaping-rules) characters are also allowed (e.g. `[a\-z]` will match `a`, `-` or `z`).
 | `~`&nbsp;[*char_class*] | Is like the character class, but it matches the any characters **not** in the set.
+| *cc* `-` *cc* | Matches the difference between two character classes (e.g. `[A-Z] - [IJK]` matches any character between A and Z that is not I, J or K).
 | *expr*` `*expr* | Match one expression followed by another (e.g. `'//' ~[\n]*`).
 | *expr*`\|`*expr* | Match either expression (e.g. `[1-9][0-9]* \| 'pi'`).
 | `(`*expr*`)` | Group an expression (e.g. `('foo' \| 'bar')*`).
