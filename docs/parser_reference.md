@@ -1,26 +1,7 @@
 # Parser Reference
 
-A parser's purpose is to transform a sequence of tokens into high-level
-programming constructs that represent the syntactical structure of the input
-according to a defined grammar.
-
-For example, the expression `1 + 2 * 3` can be transformed into an Abstract
-Syntax Tree (AST) as shown below:
-
-```
-        Binary
-      Expression
-          +
-        /   \
-       /     \
-  Literal    Binary
-     1       Expression
-                 *
-               /   \
-              /     \
-          Literal  Literal
-            2        3
-```
+A parser's purpose is to analyze a string of tokens conforming to a grammar,
+and to optionally transform it into something else.
 
 ## Parser Section
 
@@ -169,11 +150,10 @@ some_rule = @list(some_term, ',')
 `@list` can be further qualified with a `?` to match a list of zero or more
 elements.
 
-## Conflicts
+### Precedence Qualifiers
 
-If you process the following grammar snippet with `lox`, it will fail with the
-error: `grammar has conflicts`. The issue arises because this grammar is
-ambiguous:
+The following grammar is ambiguous. Attempting to analyze it will fail it with
+the error: `grammar has conflicts`:
 
 ```lox
 expr = expr '+' expr
@@ -181,57 +161,11 @@ expr = expr '+' expr
      | NUMBER
 ```
 
-Consider parsing the input `1 + 2 * 3`, where numbers are parsed as the token
-`NUMBER`. Let's break it down step by step:
+See [Conflicts](./conflicts) for a general explanation about the subject. 
 
-```
-- Lookahead: NUMBER(1)
-  Stack: 
-  Action: shift NUMBER(1)
+Conflicts related to operator precedence can be resolved using precedence
+qualifiers:
 
-- Lookahead: +
-  Stack: NUMBER(1)
-  Action: reduce NUMBER(1) => expr
-
-- Lookahead: +
-  Stack: expr
-  Action: shift +
-
-- Lookahead: NUMBER(2)
-  Stack: expr +
-  Action: shift NUMBER(2)
-
-- Lookahead: *
-  Stack: expr + expr
-  Action: ???
-```
-At this point, the parser encounters ambiguity. Should it shift the `*` or
-reduce `expr + expr`? The grammar doesn't specify, creating what's called a
-*shift-reduce conflict*. Similarly, if the parser has to choose between two or
-more reduce actions at a particular state, it encounters a *reduce-reduce*
-conflict.
-
-One way to resolve this is by refactoring the grammar:
-
-```lox
-expr = expr '+' term
-     | term
-
-term = term '*' factor
-     | factor
-
-factor = number
-
-number = NUMBER
-       | '-' NUMBER
-```
-
-While this approach resolves conflicts, it can become unwieldy for complex
-grammars. A more scalable solution is to use **precedence qualifiers**.
-
-### Precedence Qualifiers
-
-Here's the original grammar, now unambiguous due to precedence qualifiers:
 
 ```lox
 expr = expr '+' expr  @left(1)
@@ -239,26 +173,18 @@ expr = expr '+' expr  @left(1)
      | NUMBER
 ```
 
-With the precedence levels specified, `expr * expr` now takes higher
-precedence than `expr + expr`. This resolves the ambiguity:
-```
-- Lookahead: *
-  Stack: expr + expr
-  Action: shift *
-```
+The `@left` qualifiers in the grammar tells `lox` that if it encounters a
+conflict between `expr '+' expr` and `expr '*' expr`, then the latter should
+take precendence over the former. 
 
 N.B. Precedence qualifiers in Lox are used to resolve ambiguities **within a
-single rule**. However, if an ambiguity spans multiple rules, precedence
-qualifiers will be ignored, and you will need to resolve the conflict through
-grammar refactoring or other means.
+single rule**. Precedence qualifiers have no effect if an ambiguity spans
+multiple rules, and resolution will likely require grammar refactoring.
 
-### Left vs Right Associativity
+#### Associativity
 When resolving conflicts in operator precedence, it's also important to consider
 the associativity of the operators. Associativity determines how operators of
 the same precedence level are grouped in the absence of parentheses.
-
-* **Left-associative operators** (`@left`) are grouped from the left.
-* **Right-associative operators** (`@right`) are grouped from the right.
 
 #### Left Associativity (`@left`)
 For left-associative operators like addition and subtraction, when multiple
