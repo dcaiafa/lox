@@ -1,11 +1,11 @@
 # Lexer Reference
 
-The purpose of a lexer is to break the input into a series of tokens, providing
-the parser with the fundamental building blocks it can expect.
+The purpose of a lexer is to break the input into tokens which can then be used
+by a parser to build complex syntatic structures.
 
 In a lexer section, the most common declaration is the token rule. However, a
-lexer can also define other constructs, such as fragments, macros, and modes,
-which help model more complex grammars and facilitate more sophisticated
+lexer can also define other lexical elements, such as fragments, macros, and
+modes, which help model more complex grammars and facilitate more sophisticated
 tokenization strategies.
 
 ## Declarations
