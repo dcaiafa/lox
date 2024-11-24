@@ -67,8 +67,8 @@ Fragments are similar to tokens in both syntax and semantics, but with some key
 differences. Unlike tokens, fragments are unnamed and do not have a default
 action. If a fragment does not specify an action, all characters recognized by
 the fragment remain in the lexer's accumulator. This behavior is generally
-useful within a sub-mode, where fragments can be used to break down a single
-token into multiple expressions, allowing for more granular control over the
+useful within a mode, where fragments can be used to break down a single token
+into multiple expressions, allowing for more granular control over the
 tokenization process.
 
 In the default mode, fragments typically specify the `@discard` action, such as
@@ -151,7 +151,7 @@ the lexer will match sequences of characters.
 | ---------- | ----------- |
 | 'literal'  | Match a sequence of characters (e.g. 'func', '!=', ','). Special characters must be [escaped](#literal-escaping-rules).
 | [*char_class*] | Match one of the characters in the set. `x-y` specifies a range of characters (e.g. `[A-Ca-c]` is equivalent to `[ABCabc]`). [Escaped](#literal-escaping-rules) characters are also allowed (e.g. `[a\-z]` will match `a`, `-` or `z`).
-| `~`&nbsp;[*char_class*] | Is like the character class, but it matches the any characters **not** in the set.
+| `~`&nbsp;[*char_class*] | Like *character class*, but it matches characters **not** in the set.
 | *cc* `-` *cc* | Matches the difference between two character classes (e.g. `[A-Z] - [IJK]` matches any character between A and Z that is not I, J or K).
 | *expr*` `*expr* | Match one expression followed by another (e.g. `'//' ~[\n]*`).
 | *expr*`\|`*expr* | Match either expression (e.g. `[1-9][0-9]* \| 'pi'`).
@@ -180,7 +180,7 @@ token or a fragment.
 | ------- | ----------- |
 | `@emit(TOKEN)` | Emit the token referenced by the given name. Only valid in fragments.
 | `@discard` | Discard all accumulated characters (e.g. the rule `@frag [ \n\r\t]+ @discard` will discard whitespaces)
-| `@push_mode(MODE?)` | Push the current mode to the stack and enter the mode with name `MODE`. If `MODE` is not provided, it will enter the default mode.
+| `@push_mode(MODE?)` | Push the current mode onto the stack and enter the mode with name `MODE`. If `MODE` is not provided, it will enter the default mode.
 | `@pop_mode` | Pop the name on the top of the mode stack and make it the current mode.
 
 ### Literal Escaping Rules:
@@ -212,7 +212,7 @@ ELSE     = 'else'
 ID = [A-Za-z_] [A-Za-z0-9_]*
 ```
 Keywords are often specific cases of the identifier lexical expression. If this
-is the case in your grammar, ensure that you declare the keywords before the
+is the case in your grammar, make sure that you declare the keywords before the
 identifier. Otherwise, the identifier will supersede all keywords, causing the
 lexer to recognize them as identifiers instead of their respective keyword
 tokens.

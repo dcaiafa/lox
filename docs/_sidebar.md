@@ -7,5 +7,7 @@
   - [Lexer Reference](./lexer_reference)
   - [Parser Reference](./parser_reference)
   - [Go Reference](./go_reference)
+- Special Topics
+  - [Parser Conflicts](./parser_conflicts)
 
 
