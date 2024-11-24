@@ -1,6 +1,6 @@
 # Parser Reference
 
-A parser's purpose is to analyze a string of tokens conforming to a grammar,
+A parser's purpose is to recognize a string of tokens conforming to a grammar,
 and to optionally transform it into something else.
 
 ## Parser Section
@@ -53,7 +53,7 @@ prod = term_card+ qualif?
   Likewise, `?` indicates that zero or one `qualif` is expected.
 * `'@empty'` is a token, referenced by its literal form.
 
-**Nota Bene:**
+**Notes:**
 
 * Rule names must be valid [Go
 identifiers](https://go.dev/ref/spec#Identifiers) with the following additional
@@ -161,7 +161,7 @@ expr = expr '+' expr
      | NUMBER
 ```
 
-See [Conflicts](./conflicts) for a general explanation about the subject. 
+See [Parser Conflicts](./parser_conflicts) for a general explanation about the subject. 
 
 Conflicts related to operator precedence can be resolved using precedence
 qualifiers:

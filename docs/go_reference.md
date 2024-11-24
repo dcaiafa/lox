@@ -38,30 +38,48 @@ this type, and it will also generate methods in this type.
 ## Action Methods
 
 Each grammar production must have a corresponding Go action method to be
-executed by the parser when reducing that production. The production method
+executed by the parser when it reduces that production. The production method
 must be defined on the [parser type](#parser-type). The name of the method must
-follow the pattern `on_<rule>` or `on_<rule>__<suffix>` where `<rule>` is the name
-of the rule that defines the production and `<suffix>` is an optional string
-to allow multiple action methods for the same rule. The actual value of
+follow the pattern `on_<rule>` or `on_<rule>__<suffix>` where `<rule>` is the
+name of the rule that defines the production and `<suffix>` is an optional
+string to allow multiple action methods for the same rule. The actual value of
 `<suffix>` is not important, and is ignored by Lox.
 
 The action method must return a single result. If a rule has more than one
 action methods, they must return the same type. Each production term must
 correspond to an action parameter. The Go type of the rule or token referenced
 by the term must be [assignable](https://go.dev/ref/spec#Assignability) to its
-correspnding parameter type.
+corresponding parameter type.
+
+An action method must match a single production. Lox will report an error if an
+action method can be matched to multiple productions.
 
 For example:
 
 ```lox
 statement = ID '=' expr
-          | 'call' 
-
+          | 'call' ID
 
 ```
+```go
+func (p *myParser) on_statement__assign(id Token, _ Token, e Expr) Statement {
+    return &AssignStat{id, e}
+}
 
+func (p *myParser) on_statement__call(_ Token, id Token) Statement {
+    return &CallStat{id}
+}
+```
+The method `on_statement__assign` matches the production `statement = ID '='
+expr` because:
+* `on_statement` matches the rule `statement` (the suffix `__assign` is
+  ignored).
+* `id Token` matches the term `ID` (all tokens match the `Token` type).
+* `_ Token` matches the term `=` (the parameter name is not important, just the
+  type).
+* `e Expr` matches the term `expr` (assuming that there is a rule `expr` whose
+  actions return `Expr`).
 
+## _onBounds
 
-
-
-
+If your parser defines a method called `_onBounds` with the 

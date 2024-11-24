@@ -120,7 +120,8 @@ type myParser struct {
 // indicate it is ignored, but the parameter must still be present in the method
 // signature. The type of each parameter must match the term's value type. For
 // token terms, the type is always `Token`, while for rule (non-terminal) terms,
-// the type is determined by the return type of the rule's action method.
+// the type is determined by the return type of the referenced rule's action 
+// method.
 //
 // In this example, both `number` actions return `int`, but due to the special
 // cardinality modifier `@list`, the method receives a slice (`[]int`)
