@@ -12,7 +12,6 @@ the keyword `@parser`.
 @parser
 
 // Parser declarations
-
 ```
 
 ## Rules
@@ -186,7 +185,7 @@ When resolving conflicts in operator precedence, it's also important to consider
 the associativity of the operators. Associativity determines how operators of
 the same precedence level are grouped in the absence of parentheses.
 
-#### Left Associativity (`@left`)
+#### Left Associativity (@left)
 For left-associative operators like addition and subtraction, when multiple
 instances of the operator appear in a row, the parser groups them from the left.
 
@@ -202,7 +201,7 @@ Given the input `1 + 2 + 3`, the parser processes it like this:
 This is due to the `@left` qualifier, which causes the parser to reduce the
 first `expr` before considering the next.
 
-#### Right Associativity (`@right`)
+#### Right Associativity (@right)
 For right-associative operators like exponentiation or assignment, the parser groups the expressions from the right.
 
 Example:

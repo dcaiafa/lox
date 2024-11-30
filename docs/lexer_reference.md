@@ -17,7 +17,6 @@ keyword `@lexer`.
 @lexer
 
 // Lexer declarations
-
 ```
 
 ### Declaration Order
@@ -120,6 +119,7 @@ Example:
 PLUS   = '+'
 MINUS  = '-'
 OPAREN = '(' @push_mode(Alt)
+
 @mode Alt {
     DASH   = '-'
     CPAREN = ')' @pop_mode
@@ -150,15 +150,15 @@ the lexer will match sequences of characters.
 | Expression | Description |
 | ---------- | ----------- |
 | 'literal'  | Match a sequence of characters (e.g. 'func', '!=', ','). Special characters must be [escaped](#literal-escaping-rules).
-| [*char_class*] | Match one of the characters in the set. `x-y` specifies a range of characters (e.g. `[A-Ca-c]` is equivalent to `[ABCabc]`). [Escaped](#literal-escaping-rules) characters are also allowed (e.g. `[a\-z]` will match `a`, `-` or `z`).
-| `~`&nbsp;[*char_class*] | Like *character class*, but it matches characters **not** in the set.
-| *cc* `-` *cc* | Matches the difference between two character classes (e.g. `[A-Z] - [IJK]` matches any character between A and Z that is not I, J or K).
-| *expr*` `*expr* | Match one expression followed by another (e.g. `'//' ~[\n]*`).
-| *expr*`\|`*expr* | Match either expression (e.g. `[1-9][0-9]* \| 'pi'`).
-| `(`*expr*`)` | Group an expression (e.g. `('foo' \| 'bar')*`).
-| *expr*`?` | Optionally match expression (e.g. `[1-9][0-9]*('.'[0-9]+)?` specifies a number with an optional fractional part).
-| *expr*`*` | Match the expression zero or more times (e.g. `[1-9][0-9]*` matches sequences like `1` and `123`).
-| *expr*`+` | Match the expression one or more times (e.g. `[1-9][0-9]+` matches `22`, `109`, but not `1`).
+| [*char_class*] | Match one of the characters in the set. x-y specifies a range of characters (e.g. [A-Ca-c] is equivalent to [ABCabc]). [Escaped](#literal-escaping-rules) characters are also allowed (e.g. [a\-z] will match a, `-` or z).
+| ~[*char_class*] | Like [*char_class*], but it matches characters **not** in the set.
+| *cc* - *cc* | Matches the difference between two character classes (e.g. [A-Z] - [IJK] matches any character between A and Z that is not I, J or K).
+| *expr* *expr* | Match one expression followed by another (e.g. '//' ~[\n]*).
+| *expr* \| *expr* | Match either expression (e.g. [1-9][0-9]* \| 'pi').
+| (*expr*) | Group an expression (e.g. ('foo' \| 'bar')*).
+| *expr* ? | Optionally match expression (e.g. [1-9][0-9]*('.'[0-9]+)? specifies a number with an optional fractional part).
+| *expr* * | Match the expression zero or more times (e.g. [1-9][0-9]* matches sequences like 1 and 123).
+| *expr* + | Match the expression one or more times (e.g. [1-9][0-9]+ matches 22, 109, but not 1).
 
 ### Lexical Names
 
@@ -183,7 +183,7 @@ token or a fragment.
 | `@push_mode(MODE?)` | Push the current mode onto the stack and enter the mode with name `MODE`. If `MODE` is not provided, it will enter the default mode.
 | `@pop_mode` | Pop the name on the top of the mode stack and make it the current mode.
 
-### Literal Escaping Rules:
+### Literal Escaping Rules
 
 | Escaped Sequence | Actual Character |
 | ---------------- | ---------------- |
