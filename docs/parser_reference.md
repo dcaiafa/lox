@@ -5,8 +5,8 @@ and to optionally transform it into something else.
 
 ## Parser Section
 
-Parser declarations are contained in a parser section which is signaled using
-the keyword `@parser`.
+Parser declarations are contained in a parser section signaled by the `@parser`
+keyword.
 
 ```lox
 @parser

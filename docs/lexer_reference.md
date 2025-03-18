@@ -10,8 +10,8 @@ tokenization strategies.
 
 ## Declarations
 
-Lexer declarations are contained in a lexer section which is signaled using the
-keyword `@lexer`.
+Lexer declarations are contained in a lexer section signaled by the `@lexer`
+keyword.
 
 ```lox
 @lexer
@@ -21,11 +21,11 @@ keyword `@lexer`.
 
 ### Declaration Order
 
-The order of lexer declarations is crucial because it determines which token is
-emitted when a sequence of characters matches more than one lexical expression.
-In cases where multiple expressions could match the same input, the lexer will
-emit the token corresponding to the first matching expression encountered in the
-declaration order.
+The order of lexer declarations determines which token is emitted when a
+sequence of characters matches more than one lexical expression. In cases where
+multiple expressions could match the same input, the lexer will emit the token
+corresponding to the first matching expression encountered in the declaration
+order.
 
 For example, given the following grammar:
 ```lox
@@ -178,24 +178,24 @@ token or a fragment.
 
 | Keyword | Description |
 | ------- | ----------- |
-| `@emit(TOKEN)` | Emit the token referenced by the given name. Only valid in fragments.
-| `@discard` | Discard all accumulated characters (e.g. the rule `@frag [ \n\r\t]+ @discard` will discard whitespaces)
-| `@push_mode(MODE?)` | Push the current mode onto the stack and enter the mode with name `MODE`. If `MODE` is not provided, it will enter the default mode.
-| `@pop_mode` | Pop the name on the top of the mode stack and make it the current mode.
+| @emit(TOKEN) | Emit the token referenced by the given name. Only valid in fragments.
+| @discard | Discard all accumulated characters (e.g. the rule @frag [ \n\r\t]+ @discard will discard whitespaces)
+| @push_mode(MODE?) | Push the current mode onto the stack and enter the mode with name MODE. If MODE is not provided, it will enter the default mode.
+| @pop_mode | Pop the name on the top of the mode stack and make it the current mode.
 
 ### Literal Escaping Rules
 
 | Escaped Sequence | Actual Character |
 | ---------------- | ---------------- |
-| `\n` | New line (a.k.a. carriage return) UTF-8: 0x0D. |
-| `\r` | Line feed UTF-8: 0x0A. |
-| `\t` | Horizontal tab UTF-8: 0x09. |
-| `\'` | The single quote character `'` (only valid in token literal). |
-| `\-` | The short dash character `-` (only valid in character class). |
-| `\xXX` | Single byte unicode character in hexadecial (e.g. `\x2A` is `*`). |
-| `\uXXXX` | Double byte unicode character in hexadecimal (e.g. `\u4E16` is `世`). |
-| `\UXXXXXXXX` | Four byte unicode character (e.g. `\UF0938583` is `𓅃`). |
-* **Must not** be one of the reserved names: `EOF`, `ERROR`.
+| \\n | New line (a.k.a. carriage return) UTF-8: 0x0D. |
+| \\r | Line feed UTF-8: 0x0A. |
+| \\t | Horizontal tab UTF-8: 0x09. |
+| \\' | The single quote character ' (only valid in token literal). |
+| \\- | The short dash character - (only valid in character class). |
+| \\xXX | Single byte unicode character in hexadecial (e.g. \\x2A is *). |
+| \\uXXXX | Double byte unicode character in hexadecimal (e.g. \\u4E16 is 世). |
+| \\UXXXXXXXX | Four byte unicode character (e.g. \\UF0938583 is 𓅃). |
+* **Must not** be one of the reserved names: EOF, ERROR.
 
 ## Examples
 
