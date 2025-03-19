@@ -1,12 +1,23 @@
-# Introduction
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Document</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+  <meta name="description" content="Description" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0" />
+  <link rel="stylesheet" href="./css.css" />
+  <link rel="stylesheet" href="./prism.css"/>
+  <link 
+</head>
+<body>
+  <h1 id="introduction">Introduction</h1>
 
-The easiest way to get a feeling for Lox is to look at an example. The following
+<p>The easiest way to get a feeling for Lox is to look at an example. The following
 implements a simple terminal calculator. You can copy the files to an empty Go
-module, run `lox .`, then run `go run .`.
+module, run <code>lox .</code>, then run <code>go run .</code>.</p>
 
-
-```lox
-// === parser.lox ===
+<pre><code class="language-lox">// === parser.lox ===
 
 @lexer // Token definitions.
 
@@ -33,20 +44,20 @@ expr = expr '+' expr @left(1)
      | '(' expr ')'
 
 number = NUMBER | '-' NUMBER
-```
-```go
-// === parser.go ===
+</code></pre>
+
+<pre><code class="language-go">// === parser.go ===
 
 package main
 
 import (
-	"bufio"
-	"fmt"
-	gotoken "go/token"
-	"os"
-	"strconv"
+	&quot;bufio&quot;
+	&quot;fmt&quot;
+	gotoken &quot;go/token&quot;
+	&quot;os&quot;
+	&quot;strconv&quot;
 
-	"github.com/dcaiafa/loxlex/simplelexer"
+	&quot;github.com/dcaiafa/loxlex/simplelexer&quot;
 )
 
 func main() {
@@ -54,7 +65,7 @@ func main() {
 	for scanner.Scan() {
 		res, err := eval(scanner.Text())
 		if err != nil {
-			fmt.Println("error:", err)
+			fmt.Println(&quot;error:&quot;, err)
 			continue
 		}
 		fmt.Println(res)
@@ -72,7 +83,7 @@ func eval(input string) (float64, error) {
 	// implement your own lexer or copy `simplelexer` locally.
 	lex := simplelexer.New(simplelexer.Config{
 		StateMachine: new(_LexerStateMachine),
-		File:         gotoken.NewFileSet().AddFile("input", -1, len(input)),
+		File:         gotoken.NewFileSet().AddFile(&quot;input&quot;, -1, len(input)),
 		Input:        []byte(input),
 	})
 
@@ -82,8 +93,8 @@ func eval(input string) (float64, error) {
 	ok := parser.parse(lex)
 	if !ok {
 		// For production use, you will likely want to implement more robust error
-		// handling. See "Error Handling and Recovery" for more details.
-		return 0, fmt.Errorf("failed to parse")
+		// handling. See &quot;Error Handling and Recovery&quot; for more details.
+		return 0, fmt.Errorf(&quot;failed to parse&quot;)
 	}
 
 	return parser.result, nil
@@ -108,18 +119,18 @@ type myParser struct {
 	result float64
 }
 
-// The "on_" prefix indicates to Lox that this method is the action associated
-// with a production rule named after the "on_" prefix.
+// The &quot;on_&quot; prefix indicates to Lox that this method is the action associated
+// with a production rule named after the &quot;on_&quot; prefix.
 //
 // The method parameters must correspond to the terms of the production. If a
-// term's value is not needed, its corresponding parameter can be named "_" to
+// term's value is not needed, its corresponding parameter can be named &quot;_&quot; to
 // indicate it is ignored, but the parameter must still be present in the method
 // signature. The type of each parameter must match the term's value type. For
 // token terms, the type is always `Token`, while for rule (non-terminal) terms,
 // the type is determined by the return type of the referenced rule's action
 // method.
 //
-// Lox expects *all* parser productions to be matched to exactly one "on_"
+// Lox expects *all* parser productions to be matched to exactly one &quot;on_&quot;
 // method. If a rule has multiple productions, a double-underscore suffix can be
 // used to make unique method names (Lox will ignore anything after the __ and
 // will use only the parameters to match the production).
@@ -140,7 +151,7 @@ func (p *myParser) on_expr__binary(left float64, op Token, right float64) float6
 	case DIV:
 		return left / right
 	default:
-		panic("unreached")
+		panic(&quot;unreached&quot;)
 	}
 }
 
@@ -155,7 +166,7 @@ func (p *myParser) on_expr__paren(_ Token, v float64, _ Token) float64 {
 func (p *myParser) on_number__positive(n Token) float64 {
 	v, err := strconv.ParseFloat(string(n.Str), 64)
 	if err != nil {
-		panic("invalid number") // For illustration purposes; you can do better
+		panic(&quot;invalid number&quot;) // For illustration purposes; you can do better
 	}
 	return v
 }
@@ -163,11 +174,19 @@ func (p *myParser) on_number__positive(n Token) float64 {
 func (p *myParser) on_number__negative(_ Token, n Token) float64 {
 	v, err := strconv.ParseFloat(string(n.Str), 64)
 	if err != nil {
-		panic("invalid number")
+		panic(&quot;invalid number&quot;)
 	}
 	return -v
 }
-```
-### What next?
-* Check out the lexer and parser section references.
-* Explore more complex examples.
+</code></pre>
+
+<h3 id="what-next">What next?</h3>
+
+<ul>
+<li>Check out the lexer and parser section references.</li>
+<li>Explore more complex examples.</li>
+</ul>
+
+  <script src="./prism.js"></script>
+  <script src="./prism-lox.js"></script>
+</body>

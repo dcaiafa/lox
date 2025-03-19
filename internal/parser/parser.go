@@ -61,7 +61,11 @@ func (p *parser) on_spec(_ []Token, sections [][]ast.Statement) *ast.Unit {
 }
 
 func (p *parser) on_spec__error(e Error) *ast.Unit {
-	p.errs.Errorf(e.Token.Pos, "unexpected %v", _TokenToString(e.Token.Type))
+	if e.Token.Type == ERROR {
+		p.errs.Errorf(e.Token.Pos, "lexer error: %v", e.Token.Err)
+	} else {
+		p.errs.Errorf(e.Token.Pos, "unexpected %v", _TokenToString(e.Token.Type))
+	}
 	return &ast.Unit{}
 }
 

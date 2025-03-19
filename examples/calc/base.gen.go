@@ -3,15 +3,15 @@ package main
 const (
 	EOF     int = 0
 	ERROR   int = 1
-	NUM     int = 2
-	ADD     int = 3
-	SUB     int = 4
-	MUL     int = 5
-	DIV     int = 6
-	REM     int = 7
-	POW     int = 8
-	O_PAREN int = 9
-	C_PAREN int = 10
+	ADD     int = 2
+	SUB     int = 3
+	MUL     int = 4
+	DIV     int = 5
+	REM     int = 6
+	POW     int = 7
+	O_PAREN int = 8
+	C_PAREN int = 9
+	NUM     int = 10
 )
 
 func _TokenToString(t int) string {
@@ -20,8 +20,6 @@ func _TokenToString(t int) string {
 		return "EOF"
 	case ERROR:
 		return "ERROR"
-	case NUM:
-		return "NUM"
 	case ADD:
 		return "ADD"
 	case SUB:
@@ -38,6 +36,8 @@ func _TokenToString(t int) string {
 		return "O_PAREN"
 	case C_PAREN:
 		return "C_PAREN"
+	case NUM:
+		return "NUM"
 	default:
 		return "???"
 	}

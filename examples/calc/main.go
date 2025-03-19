@@ -1,23 +1,23 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"os"
 )
 
 func main() {
-	args := os.Args
-	if len(args) != 2 {
-		fmt.Fprintf(os.Stderr, "usage: %v <expr>\n", args[0])
+	scanner := bufio.NewScanner(os.Stdin)
+	for scanner.Scan() {
+		res, err := Eval(scanner.Text())
+		if err != nil {
+			fmt.Println("error:", err)
+			continue
+		}
+		fmt.Println(res)
+	}
+	if scanner.Err() != nil {
+		fmt.Println(scanner.Err())
 		os.Exit(1)
 	}
-
-	expr := args[1]
-	res, err := Eval(expr)
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err.Error())
-		os.Exit(1)
-	}
-
-	fmt.Println(res)
 }

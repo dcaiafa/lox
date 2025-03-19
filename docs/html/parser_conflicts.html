@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Document</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+  <meta name="description" content="Description" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0" />
+  <link rel="stylesheet" href="./css.css" />
+  <link rel="stylesheet" href="./prism.css"/>
+  <link 
+</head>
+<body>
+  <h1 id="conflicts">Conflicts</h1>
+
+<p>If you process the following grammar snippet with <code>lox</code>, it will fail with the
+error: <code>grammar has conflicts</code>:</p>
+
+<pre><code class="language-lox">expr = expr '+' expr
+     | expr '*' expr
+     | NUMBER
+</code></pre>
+
+<p>Running <code>lox</code> with the <code>-report</code> flag provides the missing details:</p>
+
+<pre><code>I5:
+  expr = expr .PLUS expr, EOF
+  expr = expr .PLUS expr, PLUS
+  expr = expr .PLUS expr, MUL
+  expr = expr PLUS expr., EOF
+  expr = expr PLUS expr., PLUS
+  expr = expr PLUS expr., MUL
+  expr = expr .MUL expr, EOF
+  expr = expr .MUL expr, PLUS
+  expr = expr .MUL expr, MUL
+    on EOF reduce expr
+    on MUL reduce expr &lt;== CONFLICT
+    on MUL shift I3 &lt;== CONFLICT
+    on PLUS shift I4 &lt;== CONFLICT
+    on PLUS reduce expr &lt;== CONFLICT
+</code></pre>
+
+<p>The excerpt above represents a single state in the parser state machine. In this
+state, the parser has just parsed a <code>expr PLUS expr</code> (e.g. <code>2 + 2</code>). Say the
+next token is a <code>MUL</code>, what should it do? It could reduce <code>expr PLUS expr</code> into
+<code>expr</code> or it could shift <code>MUL</code>. The grammar does not make it clear which
+action to take, so it is ambiguous.</p>
+
+<p>One way to resolve this is by refactoring the grammar:</p>
+
+<pre><code class="language-lox">expr = expr '+' term
+     | term
+
+term = term '*' factor
+     | factor
+
+factor = number
+
+number = NUMBER
+       | '-' NUMBER
+</code></pre>
+
+<p>Some conflicts can only be resolved by refactoring but a large class of
+conflicts can be resolved using
+<a href="./parser_reference#precedence_qualifiers">precedence qualifiers</a>:</p>
+
+<pre><code class="language-lox">expr = expr '+' expr  @left(1)
+     | expr '*' expr  @left(2)
+     | NUMBER
+</code></pre>
+
+<p>The <code>@left</code> qualifiers in the grammar tells <code>lox</code> that if it encounters a
+conflict between <code>expr '+' expr</code> and <code>expr '*' expr</code>, then the latter should
+take precendence over the former.</p>
+
+  <script src="./prism.js"></script>
+  <script src="./prism-lox.js"></script>
+</body>

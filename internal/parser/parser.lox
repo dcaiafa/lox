@@ -61,7 +61,7 @@ NUM = [0-9]+
   @frag '\\x' HEX HEX
   @frag '\\u' HEX HEX HEX HEX
   @frag '\\U' HEX HEX HEX HEX HEX HEX HEX HEX
-  @frag ~[\n]
+  @frag ~[\\\n]
 }
 
 OBRACKET = '[' @push_mode(ClassChar)
