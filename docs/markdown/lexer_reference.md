@@ -167,9 +167,10 @@ Names declared in a lexer section must conform to the following rules:
 * **Must** be all uppercase.
 * **Must** start with a letter.
 * **May** contain letters, numbers, and underscores after the first character.
+* **Must** be unique.
 * **Must not** end with an underscore.
 * **Must not** contain consecutive underscores.
-* **Must** be unique.
+* **Must not** be one of the reserved names: EOF, ERROR.
 
 ### Lexical Actions
 
@@ -195,7 +196,6 @@ token or a fragment.
 | \\xXX | Single byte unicode character in hexadecial (e.g. \\x2A is *). |
 | \\uXXXX | Double byte unicode character in hexadecimal (e.g. \\u4E16 is 世). |
 | \\UXXXXXXXX | Four byte unicode character (e.g. \\UF0938583 is 𓅃). |
-* **Must not** be one of the reserved names: EOF, ERROR.
 
 ## Examples
 
@@ -283,12 +283,8 @@ the input  `"1 + 2 = {1+2}"`, which would be parsed as `STR_BEGIN`,
 * **CHAR_SEQ**: This fragment matches sequences of characters within the string,
   while also handling escaped characters such as `\n`, `\t`, `{`, and `}`.
 * **OCURLY**: The opening curly brace (`{`) within the String mode triggers a
-  mode push, allowing the lexer to parse the embedded expression. It also emits
-  the `OCURLY` token.
+  mode push to the default mode (indicated by the lack of mode parameter),
+  allowing the lexer to parse the embedded expression. It also emits the
+  `OCURLY` token.
 * **CCURLY**: The closing curly brace (`}`) pops the current mode, signaling the
   end of the interpolated expression.
-
-This setup provides a clear and concise way to handle string interpolation,
-ensuring that expressions within strings are correctly parsed and tokens are
-emitted appropriately.
-

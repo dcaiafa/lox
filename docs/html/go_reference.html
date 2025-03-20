@@ -25,10 +25,10 @@ generated.</p>
 updating the Go toolchain. If <code>lox</code> returns weird/unexplainable Go-related
 errors, it is likely that your version of <code>lox</code> is too old.</p>
 
-<p class="notice">Lox uses non-idiomatic prefixes to prevent collisions between generated and
-user-written Go code. Namely it reserves the <code>on_</code> prefix (explained bellow) and
-the single underscore prefix (e.g. <code>_TokenToString</code>). Lox reserves the right to
-add more symbols using the <code>_</code> prefix in the future.</p>
+<p class="notice">Lox uses non-idiomatic prefixes to prevent symbol collisions between generated
+and user-written Go code. More specifically, it reserves the <code>on_</code> prefix
+(explained bellow) and the single underscore <code>_</code> prefix (e.g. <code>_TokenToString</code>).
+Lox reserves the right to add more symbols using the <code>_</code> prefix in the future.</p>
 
 <h2 id="token-type">Token Type</h2>
 

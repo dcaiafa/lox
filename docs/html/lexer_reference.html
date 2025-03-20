@@ -243,9 +243,10 @@ the lexer will match sequences of characters.</p>
 <li><strong>Must</strong> be all uppercase.</li>
 <li><strong>Must</strong> start with a letter.</li>
 <li><strong>May</strong> contain letters, numbers, and underscores after the first character.</li>
+<li><strong>Must</strong> be unique.</li>
 <li><strong>Must not</strong> end with an underscore.</li>
 <li><strong>Must not</strong> contain consecutive underscores.</li>
-<li><strong>Must</strong> be unique.</li>
+<li><strong>Must not</strong> be one of the reserved names: EOF, ERROR.</li>
 </ul>
 
 <h3 id="lexical-actions">Lexical Actions</h3>
@@ -336,10 +337,6 @@ token or a fragment.</p>
 </tr>
 </tbody>
 </table>
-
-<ul>
-<li><strong>Must not</strong> be one of the reserved names: EOF, ERROR.</li>
-</ul>
 
 <h2 id="examples">Examples</h2>
 
@@ -432,15 +429,12 @@ the mode, returning to the previous state.</li>
 <li><strong>CHAR_SEQ</strong>: This fragment matches sequences of characters within the string,
 while also handling escaped characters such as <code>\n</code>, <code>\t</code>, <code>{</code>, and <code>}</code>.</li>
 <li><strong>OCURLY</strong>: The opening curly brace (<code>{</code>) within the String mode triggers a
-mode push, allowing the lexer to parse the embedded expression. It also emits
-the <code>OCURLY</code> token.</li>
+mode push to the default mode (indicated by the lack of mode parameter),
+allowing the lexer to parse the embedded expression. It also emits the
+<code>OCURLY</code> token.</li>
 <li><strong>CCURLY</strong>: The closing curly brace (<code>}</code>) pops the current mode, signaling the
 end of the interpolated expression.</li>
 </ul>
-
-<p>This setup provides a clear and concise way to handle string interpolation,
-ensuring that expressions within strings are correctly parsed and tokens are
-emitted appropriately.</p>
 
   <script src="./prism.js"></script>
   <script src="./prism-lox.js"></script>

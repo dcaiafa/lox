@@ -14,10 +14,10 @@ updating the Go toolchain. If `lox` returns weird/unexplainable Go-related
 errors, it is likely that your version of `lox` is too old.
 
 {.notice}
-Lox uses non-idiomatic prefixes to prevent collisions between generated and
-user-written Go code. Namely it reserves the `on_` prefix (explained bellow) and
-the single underscore prefix (e.g. `_TokenToString`). Lox reserves the right to
-add more symbols using the `_` prefix in the future.
+Lox uses non-idiomatic prefixes to prevent symbol collisions between generated
+and user-written Go code. More specifically, it reserves the `on_` prefix
+(explained bellow) and the single underscore `_` prefix (e.g. `_TokenToString`).
+Lox reserves the right to add more symbols using the `_` prefix in the future.
 
 ## Token Type
 
