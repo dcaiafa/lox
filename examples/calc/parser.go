@@ -36,8 +36,23 @@ type calcParser struct {
 	result    float64
 }
 
-func (p *calcParser) on_S__foo(e float64) any {
-	p.result = e
+func (p *calcParser) on_S(v float64) any {
+	p.result = v
+	return nil
+}
+
+func (p *calcParser) on_S__error(err Error) any {
+	if err.Token.Type == ERROR {
+		p.errLogger.Errorf(
+			err.Token.Pos,
+			"Error: %v",
+			err.Token.Err)
+	} else {
+		p.errLogger.Errorf(
+			err.Token.Pos,
+			"Error: unexpected token %v",
+			_TokenToString(err.Token.Type))
+	}
 	return nil
 }
 

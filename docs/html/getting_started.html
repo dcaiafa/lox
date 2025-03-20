@@ -28,7 +28,124 @@ especially when upgrading your Go tooling.</p>
 
 <h2 id="experiment-with-an-example">Experiment with an example</h2>
 
-<p>The be</p>
+<p>The best way to start learning Lox is to play with an
+<a href="https://github.com/dcaiafa/lox/tree/main/examples" target="_blank">example</a>. In this section,
+we are going to use the
+<a href="https://github.com/dcaiafa/lox/tree/main/examples/calc" target="_blank">calculator</a>.</p>
+
+<p>First, try running the example by going to the <code>calc</code> directory in your terminal
+and running it using <code>go run .</code>. Enter an expression like <code>2 * (1+3)</code> and you
+should see the result.</p>
+
+<p>Next, let&rsquo;s extend the project to support built-in functions so you can evaluate
+something like <code>sqrt(32 * 2) / 2</code>. We need an identifier token that will match
+function names (<code>sqrt</code>, <code>pow</code>, etc.). We will also need a comma token to use as
+the parameter separator.</p>
+
+<p>Open <code>calc.lox</code> in an editor, then add the following to the end of the <code>@lexer</code>
+section, right after the definition for <code>NUM</code>:</p>
+
+<pre><code class="language-lox">COMMA = ','
+ID = [A-Za-z][A-Za-z0-9]*
+</code></pre>
+
+<p>Now add a parser rule for parsing a function call. Add the following to the end
+of the <code>@parser</code> section (at the end of the file):</p>
+
+<pre><code class="language-lox">func_call = ID '(' @list(expr, ',')? ')'
+</code></pre>
+
+<p>The <code>ID</code> <code>'('</code> <code>')'</code> part should look pretty straightforward. The <code>@list(expr,
+',')</code> term will match one or more <code>expr</code> separated by <code>,</code>. The <code>?</code> qualifier
+makes it optional so you can have functions that take no parameters (e.g.
+<code>pi()</code>). Notice that you can reference tokens in your grammar using their name
+(e.g. <code>COMMA</code>) or their literal value (e.g. <code>','</code>). The latter is usually easier
+to read, but is only allowed when the token consists of a simple literal.</p>
+
+<p>Now, change the definition of <code>expr</code> to include <code>func_call</code>:</p>
+
+<pre><code class="language-lox">expr = expr '+' expr  @left(1)
+     | expr '-' expr  @left(1)
+     | expr '*' expr  @left(2)
+     | expr '/' expr  @left(2)
+     | expr '%' expr  @left(2)
+     | expr '^' expr  @right(3)
+     | '(' expr ')'
+     | num
+     | func_call
+</code></pre>
+
+<p>We are done with the grammar changes. Before moving on to the Go changes, run
+<code>lox .</code> from the <code>calc</code> directory. You should see an error like the following:</p>
+
+<pre><code> $ lox .
+calc.lox:35:1: rule missing action method: func_call
+Error: errors ocurred
+</code></pre>
+
+<p>You got this error because Lox expects every production from every rule to have
+a corresponding action.</p>
+
+<p>Let&rsquo;s add one for <code>func_call</code>. Open <code>parser.go</code> in your IDE, then add the
+following to the end of the file:</p>
+
+<pre><code class="language-go">func (p *calcParser) on_func_call(
+	id Token, _ Token, args []float64, _ Token,
+) float64 {
+	name := string(id.Str)
+	switch name {
+	case &quot;pow&quot;:
+		if len(args) != 2 {
+			p.errLogger.Errorf(id.Pos, &quot;pow takes 2 arguments&quot;)
+			return 0
+		}
+		return math.Pow(args[0], args[1])
+
+	default:
+		p.errLogger.Errorf(id.Pos, &quot;invalid function %v&quot;, name)
+		return 0
+	}
+}
+</code></pre>
+
+<p>Try running <code>lox .</code> again. You should get no errors. And you should be able to
+run the project again and get a result for an expression like <code>pow(2, 8) - 1</code>.</p>
+
+<p>Hopefully the implementation of <code>on_func_call</code> should look pretty
+straightforward. But there is a lot of magic happening in the method signature.
+Here are a few useful things you should know:</p>
+
+<ul>
+<li>The <code>on_</code> prefix is how Lox knows that this is an action method. It should be
+followed by the name of the rule. It might include a <code>__*</code> suffix which will
+be ignored by Lox, but that is sometimes necessary when you need multiple
+action methods for a single rule. For example: <code>on_num</code> and <code>on_num__minus</code>
+both reference the <code>num</code> rule; the <code>__minus</code> suffix is arbitrary.</li>
+<li>The number and type of parameters must match the production being targeted.
+The single <code>func_call</code> production has 4 terms, so <code>on_func_call</code> must have 4
+parameters.</li>
+<li>The name of the parameters do not matter. Since we don&rsquo;t care about the
+value of the parenthesis token terms, we named them <code>_</code>.</li>
+<li>The type of the parameters is very important, and must match the term action
+type. For example: <code>on_func_call</code> returns <code>float64</code>, so an action that has a
+parameter for a <code>func_call</code> term must use a type that <code>float64</code> is assignable
+to.</li>
+<li>Tokens don&rsquo;t have actions, and their action type will always be <code>Token</code>.</li>
+<li>The action type of <code>@list(X, Y)</code> is a slice of the action type of <code>X</code>. In this
+case, it is a slice of the action type of <code>expr</code> which is <code>float64</code>. Hence the
+action type of <code>@list(expr, ',')</code> is <code>[]float64</code>.</li>
+<li>Notice that I said that the term action type must be <strong>assignable</strong> to the
+corresponding parameter type. So you could use <code>any</code> as the parameter type.
+This is often a bad idea as you would not be letting Lox do the type-checking
+for you (and you would need to cast the values yourself).</li>
+<li>Also, notice that you did not need to provide an action method for the
+<code>func_call</code> production that you added to <code>expr</code>. This is because the
+production will match to <code>on_expr__num</code> which will now handle <code>num</code> and
+<code>func_call</code> (and it should probably be renamed to reflect that). The match
+occurs because both <code>num</code> and <code>func_call</code> have a single term whose action type
+is <code>float64</code>. If <code>func_call</code>&rsquo;s action type was not assignable to <code>float64</code>,
+you would need to provide a dedicated action for it.</li>
+</ul>
 
   <script src="./prism.js"></script>
   <script src="./prism-lox.js"></script>
