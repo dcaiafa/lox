@@ -112,45 +112,15 @@ following to the end of the file:</p>
 run the project again and get a result for an expression like <code>pow(2, 8) - 1</code>.</p>
 
 <p>Hopefully the implementation of <code>on_func_call</code> looks pretty straightforward. But
-there is a lot of magic happening in the method signature. Here are a few things
-you should know:</p>
-
-<ul>
-<li>The <code>on_</code> prefix is how Lox knows that this is an action method. It should be
-followed by the name of the rule. It might include a <code>__*</code> suffix which will
-be ignored by Lox, but that is sometimes necessary when you need multiple
-action methods for a single rule. For example: <code>on_num</code> and <code>on_num__minus</code>
-both reference the <code>num</code> rule; the <code>__minus</code> suffix is arbitrary.</li>
-<li>The number and type of parameters must match the production being targeted.
-The single <code>func_call</code> production has 4 terms, so <code>on_func_call</code> must have 4
-parameters.</li>
-<li>The name of parameters does not matter. Since we don&rsquo;t care about the value of
-the parenthesis token terms, we named them <code>_</code>.</li>
-<li>On the other hand, the type of the parameters is very important, and must
-match the term action type. For example: <code>on_func_call</code> returns <code>float64</code>, so
-an action that has a parameter for a <code>func_call</code> term must use a type that
-<code>float64</code> is assignable to.</li>
-<li>Tokens don&rsquo;t have actions, and their action type will always be <code>Token</code>.</li>
-<li>The action type of <code>@list(X, Y)</code> is a slice of <code>X</code>&rsquo;s action type. In this
-case, it is a slice of <code>expr</code>&rsquo;s action type which is <code>float64</code>. Hence the
-action type of <code>@list(expr, ',')</code> is <code>[]float64</code>.</li>
-<li>Notice that I said that the term action type must be <strong>assignable</strong> to the
-corresponding parameter type. So you could use <code>any</code> as the parameter type for
-any term. This is often a bad idea as you would not be letting Lox do the
-type-checking for you (and you would need to cast the values yourself).</li>
-<li>Also, notice that you did not need to provide an action method for the
-<code>func_call</code> production that you added to <code>expr</code>. This is because the
-production will match to <code>on_expr__num</code> which will now handle <code>num</code> and
-<code>func_call</code> (and it should probably be renamed to reflect that). The match
-occurs because both <code>num</code> and <code>func_call</code> have a single term whose action type
-is <code>float64</code>. If <code>func_call</code>&rsquo;s action type was not assignable to <code>float64</code>,
-you would need to provide a dedicated action for it.</li>
-</ul>
+there is a lot of magic happening in the method signature. Lox uses both the
+method&rsquo;s name and the number and type of its parameters to match the action to a
+production. Check out the docs for <a href="./go_reference.html#action-methods">Action Methods</a>
+for more details.</p>
 
 <h2 id="next-steps">Next Steps</h2>
 
 <ul>
-<li>Look at the <a href="./reference.html">reference</a>.</li>
+<li>Check out the <a href="./reference.html">reference</a> docs.</li>
 <li>Explore other <a href="https://github.com/dcaiafa/lox/tree/main/examples" target="_blank">examples</a>.</li>
 <li>Lox is built on itself. Take a look at its
 <a href="https://github.com/dcaiafa/lox/blob/main/internal/parser/parser.lox" target="_blank">parser</a>.</li>

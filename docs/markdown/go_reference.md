@@ -1,9 +1,23 @@
 # Go Reference
 
-The `lox` tool analyzes both the grammar and Go files in the parser package.
+Similar to ANTLR (and unlike Bison/Yacc), Lox separates the grammar from the
+user-written code. Unlike ANTLR, Lox analyzes both the grammar and the
+user-written code to inform how the parser should be generated. It matches
+productions (grammar/lox) to actions (user-written/Go) and uses these relations
+to type-check action parameters and return-values. As a consequence the
+user-written Go code must fulfill certain requirements before a parser can be
+generated.
 
-**It is important to always use the latest Lox release, especially after
-updating the Go toolchain.**
+{.notice}
+It is important to always use the latest Lox release, especially after
+updating the Go toolchain. If `lox` returns weird/unexplainable Go-related
+errors, it is likely that your version of `lox` is too old.
+
+{.notice}
+Lox uses non-idiomatic prefixes to prevent collisions between generated and
+user-written Go code. Namely it reserves the `on_` prefix (explained bellow) and
+the single underscore prefix (e.g. `_TokenToString`). Lox reserves the right to
+add more symbols using the `_` prefix in the future.
 
 ## Token Type
 
@@ -35,7 +49,7 @@ type myParser struct {
 Embedding `lox` marks the type as the parser type. Lox will look for actions in
 this type, and it will also generate methods in this type.
 
-## Action Methods
+### Action Methods
 
 Each grammar production must have a corresponding Go action method to be
 executed by the parser when it reduces that production. The production method
@@ -80,6 +94,32 @@ expr` because:
 * `e Expr` matches the term `expr` (assuming that there is a rule `expr` whose
   actions return `Expr`).
 
-## _onBounds
+### _onBounds
 
-If your parser defines a method called `_onBounds` with the 
+If your parser defines a method called `_onBounds` in the
+[parser type](#parser-type), the generated parser will call it once for every
+reduce artifact with information defining its lexical boundaries in the form of
+the start and end tokens. This can be used to store source location information
+in the AST, for example.
+
+`_onBounds`, if specified, must have the following signature:
+
+```go
+func (p *yourParser) _onBounds(r any, begin, end Token) {
+    // ...
+}
+```
+Where `r` is the reduce artifact, and `begin` and `end` are its boundary tokens.
+
+{.notice}
+You must run `lox` to regenerate the parser after defining `_onBounds` or it
+will not be called.
+
+Check out
+[Bolox](https://github.com/dcaiafa/lox/blob/main/examples/bolox/parser.go)
+for an example of how `_onBounds` can be used to associate source location
+information with ASTs for error logging purp
+source location with AST, which is later used to log errors with location
+information.
+
+## Generated Code

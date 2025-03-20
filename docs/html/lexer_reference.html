@@ -71,12 +71,12 @@ be emitted.</p>
 <p>Where:</p>
 
 <ul>
-<li><code>NAME</code> is a <a href=".html" target="_blank">lexical name</a>.</li>
-<li><code>&lt;expression&gt;</code> is a <a href=".html" target="_blank">lexical expression</a>.</li>
-<li><code>&lt;action&gt;</code> is a <a href=".html" target="_blank">lexical-action</a>.</li>
+<li><code>NAME</code> is a <a href="#lexical-names">lexical name</a>.</li>
+<li><code>&lt;expression&gt;</code> is a <a href="#lexical-expressions">lexical expression</a>.</li>
+<li><code>&lt;action&gt;</code> is a <a href="#lexical-actions">lexical-action</a>.</li>
 </ul>
 
-<p>Tokens carry the <a href=".html" target="_blank">action</a> <code>@emit(NAME)</code> implicitly.</p>
+<p>Tokens carry the <a href="#lexical-actions">action</a> <code>@emit(NAME)</code> implicitly.</p>
 
 <h3 id="fragments">Fragments</h3>
 
@@ -100,8 +100,8 @@ part of the token stream.</p>
 <p>Where:</p>
 
 <ul>
-<li><code>&lt;expression&gt;</code> is a <a href=".html" target="_blank">lexical expression</a>.</li>
-<li><code>&lt;action&gt;</code> is a <a href=".html" target="_blank">lexical-action</a>.</li>
+<li><code>&lt;expression&gt;</code> is a <a href="#lexical-expressions">lexical expression</a>.</li>
+<li><code>&lt;action&gt;</code> is a <a href="#lexical-actions">lexical-action</a>.</li>
 </ul>
 
 <h3 id="macros">Macros</h3>
@@ -124,8 +124,8 @@ lexer, thereby improving readability and maintainability.</p>
 <p>Where:</p>
 
 <ul>
-<li><code>NAME</code> is a <a href=".html" target="_blank">lexical name</a>.</li>
-<li><code>&lt;expression&gt;</code> is a <a href=".html" target="_blank">lexical expression</a>.</li>
+<li><code>NAME</code> is a <a href="#lexical-names">lexical name</a>.</li>
+<li><code>&lt;expression&gt;</code> is a <a href="#lexical-expressions">lexical expression</a>.</li>
 </ul>
 
 <h3 id="modes">Modes</h3>
@@ -133,7 +133,7 @@ lexer, thereby improving readability and maintainability.</p>
 <p>A mode is a group of lexical expressions that allows you to switch between
 different sets of tokens or fragments depending on the context. Tokens or
 fragments declared outside of any specific mode belong to the default mode. The
-<code>@push_mode</code> and <code>@pop_mode</code> <a href=".html" target="_blank">actions</a> are used to switch
+<code>@push_mode</code> and <code>@pop_mode</code> <a href="#lexical-actions">actions</a> are used to switch
 between modes during lexing.</p>
 
 <p>Example:</p>
@@ -185,12 +185,12 @@ the lexer will match sequences of characters.</p>
 <tbody>
 <tr>
 <td>&lsquo;literal&rsquo;</td>
-<td>Match a sequence of characters (e.g. &lsquo;func&rsquo;, &lsquo;!=&rsquo;, &lsquo;,&rsquo;). Special characters must be <a href=".html" target="_blank">escaped</a>.</td>
+<td>Match a sequence of characters (e.g. &lsquo;func&rsquo;, &lsquo;!=&rsquo;, &lsquo;,&rsquo;). Special characters must be <a href="#literal-escaping-rules">escaped</a>.</td>
 </tr>
 
 <tr>
 <td>[<em>char_class</em>]</td>
-<td>Match one of the characters in the set. x-y specifies a range of characters (e.g. [A-Ca-c] is equivalent to [ABCabc]). <a href=".html" target="_blank">Escaped</a> characters are also allowed (e.g. [a-z] will match a, <code>-</code> or z).</td>
+<td>Match one of the characters in the set. x-y specifies a range of characters (e.g. [A-Ca-c] is equivalent to [ABCabc]). <a href="#literal-escaping-rules">Escaped</a> characters are also allowed (e.g. [a-z] will match a, <code>-</code> or z).</td>
 </tr>
 
 <tr>

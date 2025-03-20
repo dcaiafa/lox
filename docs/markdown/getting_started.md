@@ -104,11 +104,12 @@ run the project again and get a result for an expression like `pow(2, 8) - 1`.
 Hopefully the implementation of `on_func_call` looks pretty straightforward. But
 there is a lot of magic happening in the method signature. Lox uses both the
 method's name and the number and type of its parameters to match the action to a
-production. 
+production. Check out the docs for [Action Methods](./go_reference#action-methods)
+for more details.
 
 ## Next Steps
 
-* Look at the [reference](./reference).
+* Check out the [reference](./reference) docs.
 * Explore other [examples](https://github.com/dcaiafa/lox/tree/main/examples).
 * Lox is built on itself. Take a look at its
   [parser](https://github.com/dcaiafa/lox/blob/main/internal/parser/parser.lox).
