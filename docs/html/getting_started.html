@@ -26,7 +26,7 @@ in your <code>PATH</code>.</p>
 <p class="notice">Because <code>lox</code> analyzes Go sources, it is very important to update it often,
 especially when upgrading your Go tooling.</p>
 
-<h2 id="experiment-with-an-example">Experiment with an example</h2>
+<h2 id="try-an-example">Try an example</h2>
 
 <p>The best way to start learning Lox is to play with an
 <a href="https://github.com/dcaiafa/lox/tree/main/examples" target="_blank">example</a>. In this section,
@@ -38,19 +38,19 @@ and running it using <code>go run .</code>. Enter an expression like <code>2 * (
 should see the result.</p>
 
 <p>Next, let&rsquo;s extend the project to support built-in functions so you can evaluate
-something like <code>sqrt(32 * 2) / 2</code>. We need an identifier token that will match
+something like <code>pow(2,8) - 1</code>. We need an identifier token that will match
 function names (<code>sqrt</code>, <code>pow</code>, etc.). We will also need a comma token to use as
 the parameter separator.</p>
 
 <p>Open <code>calc.lox</code> in an editor, then add the following to the end of the <code>@lexer</code>
-section, right after the definition for <code>NUM</code>:</p>
+section, right after the definition of <code>NUM</code>:</p>
 
 <pre><code class="language-lox">COMMA = ','
 ID = [A-Za-z][A-Za-z0-9]*
 </code></pre>
 
-<p>Now add a parser rule for parsing a function call. Add the following to the end
-of the <code>@parser</code> section (at the end of the file):</p>
+<p>Now add a parser rule for a function call. Add the following to the end of the
+<code>@parser</code> section (at the end of the file):</p>
 
 <pre><code class="language-lox">func_call = ID '(' @list(expr, ',')? ')'
 </code></pre>
@@ -60,7 +60,7 @@ of the <code>@parser</code> section (at the end of the file):</p>
 makes it optional so you can have functions that take no parameters (e.g.
 <code>pi()</code>). Notice that you can reference tokens in your grammar using their name
 (e.g. <code>COMMA</code>) or their literal value (e.g. <code>','</code>). The latter is usually easier
-to read, but is only allowed when the token consists of a simple literal.</p>
+to read, but is only allowed when the token definition is a simple literal.</p>
 
 <p>Now, change the definition of <code>expr</code> to include <code>func_call</code>:</p>
 
@@ -111,9 +111,9 @@ following to the end of the file:</p>
 <p>Try running <code>lox .</code> again. You should get no errors. And you should be able to
 run the project again and get a result for an expression like <code>pow(2, 8) - 1</code>.</p>
 
-<p>Hopefully the implementation of <code>on_func_call</code> should look pretty
-straightforward. But there is a lot of magic happening in the method signature.
-Here are a few useful things you should know:</p>
+<p>Hopefully the implementation of <code>on_func_call</code> looks pretty straightforward. But
+there is a lot of magic happening in the method signature. Here are a few things
+you should know:</p>
 
 <ul>
 <li>The <code>on_</code> prefix is how Lox knows that this is an action method. It should be
@@ -124,20 +124,20 @@ both reference the <code>num</code> rule; the <code>__minus</code> suffix is arb
 <li>The number and type of parameters must match the production being targeted.
 The single <code>func_call</code> production has 4 terms, so <code>on_func_call</code> must have 4
 parameters.</li>
-<li>The name of the parameters do not matter. Since we don&rsquo;t care about the
-value of the parenthesis token terms, we named them <code>_</code>.</li>
-<li>The type of the parameters is very important, and must match the term action
-type. For example: <code>on_func_call</code> returns <code>float64</code>, so an action that has a
-parameter for a <code>func_call</code> term must use a type that <code>float64</code> is assignable
-to.</li>
+<li>The name of parameters does not matter. Since we don&rsquo;t care about the value of
+the parenthesis token terms, we named them <code>_</code>.</li>
+<li>On the other hand, the type of the parameters is very important, and must
+match the term action type. For example: <code>on_func_call</code> returns <code>float64</code>, so
+an action that has a parameter for a <code>func_call</code> term must use a type that
+<code>float64</code> is assignable to.</li>
 <li>Tokens don&rsquo;t have actions, and their action type will always be <code>Token</code>.</li>
-<li>The action type of <code>@list(X, Y)</code> is a slice of the action type of <code>X</code>. In this
-case, it is a slice of the action type of <code>expr</code> which is <code>float64</code>. Hence the
+<li>The action type of <code>@list(X, Y)</code> is a slice of <code>X</code>&rsquo;s action type. In this
+case, it is a slice of <code>expr</code>&rsquo;s action type which is <code>float64</code>. Hence the
 action type of <code>@list(expr, ',')</code> is <code>[]float64</code>.</li>
 <li>Notice that I said that the term action type must be <strong>assignable</strong> to the
-corresponding parameter type. So you could use <code>any</code> as the parameter type.
-This is often a bad idea as you would not be letting Lox do the type-checking
-for you (and you would need to cast the values yourself).</li>
+corresponding parameter type. So you could use <code>any</code> as the parameter type for
+any term. This is often a bad idea as you would not be letting Lox do the
+type-checking for you (and you would need to cast the values yourself).</li>
 <li>Also, notice that you did not need to provide an action method for the
 <code>func_call</code> production that you added to <code>expr</code>. This is because the
 production will match to <code>on_expr__num</code> which will now handle <code>num</code> and
@@ -145,6 +145,15 @@ production will match to <code>on_expr__num</code> which will now handle <code>n
 occurs because both <code>num</code> and <code>func_call</code> have a single term whose action type
 is <code>float64</code>. If <code>func_call</code>&rsquo;s action type was not assignable to <code>float64</code>,
 you would need to provide a dedicated action for it.</li>
+</ul>
+
+<h2 id="next-steps">Next Steps</h2>
+
+<ul>
+<li>Look at the <a href="./reference.html">reference</a>.</li>
+<li>Explore other <a href="https://github.com/dcaiafa/lox/tree/main/examples" target="_blank">examples</a>.</li>
+<li>Lox is built on itself. Take a look at its
+<a href="https://github.com/dcaiafa/lox/blob/main/internal/parser/parser.lox" target="_blank">parser</a>.</li>
 </ul>
 
   <script src="./prism.js"></script>
