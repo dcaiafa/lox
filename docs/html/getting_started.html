@@ -6,12 +6,29 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
   <meta name="description" content="Description" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0" />
-  <link rel="stylesheet" href="./css.css" />
   <link rel="stylesheet" href="./prism.css"/>
+  <link rel="stylesheet" href="./css.css" />
   <link 
 </head>
 <body>
-  <h1 id="getting-started">Getting started</h1>
+  <div class="sidebar">
+    <ul>
+      <li>Reference
+        <ul>
+          <li>Parser Reference</li>
+          <li>Lexer Reference</li>
+          <li>Go Reference</li>
+        </ul>
+      </li>
+      <li>hi_1</li>
+      <li>hi_2</li>
+      <li>hi_3</li>
+    </ul>
+  </div>
+
+  <div class="article">
+    <a href="javascript:void(0)" onclick="toggleSidebar()">X</a>
+    <h1 id="getting-started">Getting started</h1>
 
 <p>Lox is a parser/lexer generator for the Go language. It consists of the <code>lox</code>
 tool which analyzes a project&rsquo;s grammar and Go sources, and generates a
@@ -126,6 +143,9 @@ for more details.</p>
 <a href="https://github.com/dcaiafa/lox/blob/main/internal/parser/parser.lox" target="_blank">parser</a>.</li>
 </ul>
 
+  </div>
+
+  <script src="./scripts.js"></script>
   <script src="./prism.js"></script>
   <script src="./prism-lox.js"></script>
 </body>
