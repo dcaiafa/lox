@@ -149,7 +149,7 @@ some_rule = @list(some_term, ',')
 `@list` can be further qualified with a `?` to match a list of zero or more
 elements.
 
-### Precedence Qualifiers
+### Precedence and Associativity
 
 The following grammar is ambiguous. Attempting to analyze it will fail it with
 the error: `grammar has conflicts`:
@@ -160,10 +160,11 @@ expr = expr '+' expr
      | NUMBER
 ```
 
-See [Parser Conflicts](./parser_conflicts) for a general explanation about the subject. 
+See [Parser Conflicts](./parser_conflicts) for a general explanation about the
+subject. 
 
-Conflicts related to operator precedence can be resolved using precedence
-qualifiers:
+Conflicts related to operator precedence can be resolved using precedence and
+associatity qualifiers:
 
 
 ```lox
@@ -176,11 +177,11 @@ The `@left` qualifiers in the grammar tells `lox` that if it encounters a
 conflict between `expr '+' expr` and `expr '*' expr`, then the latter should
 take precendence over the former. 
 
-N.B. Precedence qualifiers in Lox are used to resolve ambiguities **within a
+{.notice}
+Precedence qualifiers in Lox are used to resolve ambiguities **within a
 single rule**. Precedence qualifiers have no effect if an ambiguity spans
 multiple rules, and resolution will likely require grammar refactoring.
 
-#### Associativity
 When resolving conflicts in operator precedence, it's also important to consider
 the associativity of the operators. Associativity determines how operators of
 the same precedence level are grouped in the absence of parentheses.

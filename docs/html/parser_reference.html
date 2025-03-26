@@ -21,10 +21,10 @@
       <li><a href="./reference.html">Reference</a>
         <ul>
   <li>
-    <a href="lexer_reference.html">Lexer</a>
+    <a href="lexer_reference.html">Lexer Reference</a>
   </li>
   <li>
-    <a href="parser_reference.html">Parser</a>
+    <a href="parser_reference.html">Parser Reference</a>
       <ul>
   <li>
     <a href="#parser-section">Parser Section</a>
@@ -56,11 +56,8 @@
     <a href="#list-list">List (@list)</a>
   </li>
   <li>
-    <a href="#precedence-qualifiers">Precedence Qualifiers</a>
+    <a href="#precedence-and-associativity">Precedence and Associativity</a>
       <ul>
-  <li>
-    <a href="#associativity">Associativity</a>
-  </li>
   <li>
     <a href="#left-associativity-left">Left Associativity (@left)</a>
   </li>
@@ -74,7 +71,14 @@
       </ul>
   </li>
   <li>
-    <a href="go_reference.html">Go</a>
+    <a href="go_reference.html">Go Reference</a>
+  </li>
+        </ul>
+      </li>
+      <li><a href="./advanced.html">Advanced</a>
+        <ul>
+  <li>
+    <a href="parser_conflicts.html">Parser Conflicts</a>
   </li>
         </ul>
       </li>
@@ -240,7 +244,7 @@ while separated by <code>sep</code>.</p>
 <p><code>@list</code> can be further qualified with a <code>?</code> to match a list of zero or more
 elements.</p>
 
-<h3 id="precedence-qualifiers">Precedence Qualifiers</h3>
+<h3 id="precedence-and-associativity">Precedence and Associativity</h3>
 
 <p>The following grammar is ambiguous. Attempting to analyze it will fail it with
 the error: <code>grammar has conflicts</code>:</p>
@@ -250,10 +254,11 @@ the error: <code>grammar has conflicts</code>:</p>
      | NUMBER
 </code></pre>
 
-<p>See <a href="./parser_conflicts.html">Parser Conflicts</a> for a general explanation about the subject.</p>
+<p>See <a href="./parser_conflicts.html">Parser Conflicts</a> for a general explanation about the
+subject.</p>
 
-<p>Conflicts related to operator precedence can be resolved using precedence
-qualifiers:</p>
+<p>Conflicts related to operator precedence can be resolved using precedence and
+associatity qualifiers:</p>
 
 <pre><code class="language-lox">expr = expr '+' expr  @left(1)
      | expr '*' expr  @left(2)
@@ -264,11 +269,9 @@ qualifiers:</p>
 conflict between <code>expr '+' expr</code> and <code>expr '*' expr</code>, then the latter should
 take precendence over the former.</p>
 
-<p>N.B. Precedence qualifiers in Lox are used to resolve ambiguities <strong>within a
+<p class="notice">Precedence qualifiers in Lox are used to resolve ambiguities <strong>within a
 single rule</strong>. Precedence qualifiers have no effect if an ambiguity spans
 multiple rules, and resolution will likely require grammar refactoring.</p>
-
-<h4 id="associativity">Associativity</h4>
 
 <p>When resolving conflicts in operator precedence, it&rsquo;s also important to consider
 the associativity of the operators. Associativity determines how operators of

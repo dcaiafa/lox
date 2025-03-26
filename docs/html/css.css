@@ -743,6 +743,7 @@ body.sidebar-collapsed {
   height: 100vh;
   background-color: var(--accent-bg);
   grid-area: sidebar;
+  padding: 0rem 1rem;
 }
 
 body.sidebar-collapsed .sidebar  {
