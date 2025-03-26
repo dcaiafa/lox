@@ -1,0 +1,26 @@
+{{- block hx(h) }}
+  <li>
+    <a href="{{"#" + h.ID}}">{{ h.Title }}</a>
+    {{- if len(h.Children) > 0 }}
+      <ul>
+        {{- range i, c := h.Children }}
+          {{- yield hx(h=c) }}
+        {{- end }}
+      </ul>
+    {{- end }}
+  </li>
+{{- end }}
+
+{{- block doc(path, title) }}
+  <li>
+    <a href="{{path + ".html"}}">{{ title }}</a>
+    {{- if "./" + path == current }}
+      <ul>
+        {{- range i, h := headings }}
+          {{- yield hx(h=h) }}
+        {{- end }}
+      </ul>
+    {{- end }}
+  </li>
+{{- end }}
+

@@ -1,3 +1,4 @@
+{{ import "./headings.jet" }}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -13,16 +14,14 @@
 <body>
   <div class="sidebar">
     <ul>
-      <li>Reference
+      {{- yield doc(path="getting_started", title="Getting Started") }}
+      <li><a href="./reference.html">Reference</a>
         <ul>
-          <li>Parser Reference</li>
-          <li>Lexer Reference</li>
-          <li>Go Reference</li>
+          {{- yield doc(path="parser_reference", title="Parser") }}
+          {{- yield doc(path="lexer_reference", title="Lexer") }}
+          {{- yield doc(path="go_reference", title="Go") }}
         </ul>
       </li>
-      <li>hi_1</li>
-      <li>hi_2</li>
-      <li>hi_3</li>
     </ul>
   </div>
 

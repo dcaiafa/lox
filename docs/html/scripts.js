@@ -1,11 +1,10 @@
 function toggleSidebar() {
-  document.getElementById("container").classList.toggle("container-sidebar-collapsed");
+  document.getElementsByTagName("body")[0].classList.toggle("sidebar-collapsed");
 }
 
 function adjustSidebar() {
-  console.log("adjustSidebar " + String(window.innerWidth));
-	if (window.innerWidth < 760) {
-  	document.getElementById("container").classList.add("container-sidebar-collapsed");	
+  if (window.innerWidth < 760) {
+    document.getElementsByTagName("body")[0].classList.add("sidebar-collapsed");
   }
 }
 
