@@ -13,6 +13,7 @@
 </head>
 <body>
   <div class="sidebar">
+    <h1>Lox</h1>
     <ul>
       {{- yield doc(path="getting_started", title="Getting Started") }}
       <li><a href="./reference.html">Reference</a>

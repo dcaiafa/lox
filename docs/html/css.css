@@ -65,43 +65,12 @@ html {
   scroll-behavior: smooth;
 }
 
-/* Make the body a nice central block */
 body {
   color: var(--text);
   background-color: var(--bg);
   font-size: 1rem;
   line-height: 1.5;
   margin: 0;
-  display: grid;
-  grid-template-columns: 1fr 17rem minmax(10rem, 55rem) 1fr;
-  grid-column-gap: 1rem;
-  grid-template-rows: min-content;
-  grid-template-areas: 
-    "margin-left sidebar article margin-right";
-}
-
-body.sidebar-collapsed {
-  grid-template-columns: 1fr minmax(10rem, 55rem) 1fr;
-  grid-template-areas: 
-    "margin-left article margin-right";
-}
-
-.sidebar {
-  overflow-x: hidden;
-  overflow-y: auto;
-  height: 100vh;
-  background-color: var(--accent-bg);
-  grid-area: sidebar;
-}
-
-body.sidebar-collapsed .sidebar  {
-  display: none;
-}
-
-.article {
-  grid-area: article;
-  overflow-y: auto;
-  max-height: 100vh;
 }
 
 /* Add a little padding to ensure spacing is correct between content and header > nav */
@@ -752,3 +721,71 @@ sub {
     white-space: pre-wrap;
   }
 }
+
+body {
+  grid-template-columns: 1fr 17rem minmax(10rem, 55rem) 1fr;
+  grid-column-gap: 1rem;
+  grid-template-rows: min-content;
+  grid-template-areas: 
+    "margin-left sidebar article margin-right";
+  display: grid;
+}
+
+body.sidebar-collapsed {
+  grid-template-columns: 1fr minmax(10rem, 55rem) 1fr;
+  grid-template-areas: 
+    "margin-left article margin-right";
+}
+
+.sidebar {
+  overflow-x: hidden;
+  overflow-y: auto;
+  height: 100vh;
+  background-color: var(--accent-bg);
+  grid-area: sidebar;
+}
+
+body.sidebar-collapsed .sidebar  {
+  display: none;
+}
+
+.sidebar > h1 {
+  text-transform: uppercase;
+  text-align: center;
+  color: var(--text-light);
+  font-size: 2rem;
+  margin: 2rem 0;
+  letter-spacing: 0.2rem;
+}
+
+.sidebar a {
+  text-decoration: none;
+  color: var(--text-light);
+}
+
+.sidebar a:hover {
+  color: var(--text);
+}
+
+.sidebar ul {
+  font-size: 1.3rem;
+  list-style-type: none;
+  padding: 0px;
+  margin: 0px;
+}
+
+.sidebar ul ul {
+  font-size: 1.1rem;
+  padding-left: 1.0rem;
+}
+
+.sidebar ul ul ul {
+  font-size: 1.0rem;
+}
+
+.article {
+  grid-area: article;
+  overflow-y: auto;
+  max-height: 100vh;
+}
+
