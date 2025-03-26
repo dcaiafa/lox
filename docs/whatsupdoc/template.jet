@@ -17,8 +17,8 @@
       {{- yield doc(path="getting_started", title="Getting Started") }}
       <li><a href="./reference.html">Reference</a>
         <ul>
-          {{- yield doc(path="parser_reference", title="Parser") }}
           {{- yield doc(path="lexer_reference", title="Lexer") }}
+          {{- yield doc(path="parser_reference", title="Parser") }}
           {{- yield doc(path="go_reference", title="Go") }}
         </ul>
       </li>

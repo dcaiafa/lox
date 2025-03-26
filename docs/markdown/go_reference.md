@@ -96,11 +96,10 @@ expr` because:
 
 ### _onBounds
 
-If your parser defines a method called `_onBounds` in the
-[parser type](#parser-type), the generated parser will call it once for every
-reduce artifact with information defining its lexical boundaries in the form of
-the start and end tokens. This can be used to store source location information
-in the AST, for example.
+If your [parser type](#parser-type) defines a method called `_onBounds`, the
+generated parser will call it once for every reduce artifact with information
+defining its lexical boundaries in the form of the start and end tokens. This
+can be used to store source location information in the AST, for example.
 
 `_onBounds`, if specified, must have the following signature:
 

@@ -20,10 +20,10 @@
       <li><a href="./reference.html">Reference</a>
         <ul>
   <li>
-    <a href="parser_reference.html">Parser</a>
+    <a href="lexer_reference.html">Lexer</a>
   </li>
   <li>
-    <a href="lexer_reference.html">Lexer</a>
+    <a href="parser_reference.html">Parser</a>
   </li>
   <li>
     <a href="go_reference.html">Go</a>
@@ -150,11 +150,10 @@ actions return <code>Expr</code>).</li>
 
 <h3 id="onbounds">_onBounds</h3>
 
-<p>If your parser defines a method called <code>_onBounds</code> in the
-<a href="#parser-type">parser type</a>, the generated parser will call it once for every
-reduce artifact with information defining its lexical boundaries in the form of
-the start and end tokens. This can be used to store source location information
-in the AST, for example.</p>
+<p>If your <a href="#parser-type">parser type</a> defines a method called <code>_onBounds</code>, the
+generated parser will call it once for every reduce artifact with information
+defining its lexical boundaries in the form of the start and end tokens. This
+can be used to store source location information in the AST, for example.</p>
 
 <p><code>_onBounds</code>, if specified, must have the following signature:</p>
 
