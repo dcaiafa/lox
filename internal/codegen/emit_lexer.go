@@ -167,13 +167,13 @@ func (c *context) EmitLexer() bool {
 			var row []uint32
 			actions := state.Data.(*mode.Actions)
 
-			row = append(row, uint32(state.Transitions.Len()))
 			inputs := make([]rang3.Range, 0, state.Transitions.Len())
 			state.Transitions.ForEach(func(eventRaw any, toState *dfa.State) {
 				inputs = append(inputs, eventRaw.(rang3.Range))
 			})
 			slices.SortFunc(inputs, rang3.Compare)
 
+			row = append(row, uint32(len(inputs)))
 			for _, input := range inputs {
 				toState, ok := state.Transitions.Get(input)
 				assert.True(ok)

@@ -3,10 +3,10 @@ package dfa
 import (
 	"sort"
 
-	"github.com/dcaiafa/lox/internal/lexergen/nfa"
 	"github.com/dcaiafa/lox/internal/base/array"
 	"github.com/dcaiafa/lox/internal/base/set"
 	"github.com/dcaiafa/lox/internal/base/stack"
+	"github.com/dcaiafa/lox/internal/lexergen/nfa"
 )
 
 func NFAToDFA(n *nfa.State) *DFA {
