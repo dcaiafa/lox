@@ -69,7 +69,9 @@ const (
 	One Card = iota
 	ZeroOrOne
 	ZeroOrMore
+	ZeroOrMoreNG
 	OneOrMore
+	OneOrMoreNG
 )
 
 type Associativity int

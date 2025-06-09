@@ -8,10 +8,10 @@ import (
 	"slices"
 	"sort"
 
-	"github.com/dcaiafa/lox/internal/lexergen/nfa"
 	"github.com/dcaiafa/lox/internal/base/set"
 	"github.com/dcaiafa/lox/internal/base/stablemap"
 	"github.com/dcaiafa/lox/internal/base/stack"
+	"github.com/dcaiafa/lox/internal/lexergen/nfa"
 )
 
 type DFA struct {
@@ -26,6 +26,7 @@ type State struct {
 	ID          uint32
 	Transitions stablemap.Map[any, *State]
 	Accept      bool
+	NonGreedy   bool
 	NFAStates   []*nfa.State
 	Data        any
 }

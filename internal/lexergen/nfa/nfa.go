@@ -37,6 +37,8 @@ type State struct {
 	// You set this yourself.
 	Accept bool
 
+	NonGreedy bool
+
 	// Data is some user-data associated with this state.
 	// Your set this yourself (or don't, I don't care).
 	Data any

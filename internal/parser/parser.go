@@ -278,8 +278,12 @@ func (p *parser) on_lexer_card(c Token) ast.Card {
 		return ast.ZeroOrOne
 	case ZERO_OR_MORE:
 		return ast.ZeroOrMore
+	case ZERO_OR_MORE_NG:
+		return ast.ZeroOrMoreNG
 	case ONE_OR_MORE:
 		return ast.OneOrMore
+	case ONE_OR_MORE_NG:
+		return ast.OneOrMoreNG
 	default:
 		panic("unreachable")
 	}
