@@ -65,7 +65,7 @@ NL = '\n'
 @frag '\\' WS* '\n' @discard
 
 // Comments.
-@frag '//' ~[\n]* @discard
+@frag '//' .*? '\n' @discard
 
 
 @parser

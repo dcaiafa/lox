@@ -1,0 +1,104 @@
+Parser Table
+============
+I0:
+  S' = .S, EOF
+  S = .NUM*, EOF
+  S = .ERROR, EOF
+  NUM* = .NUM+, EOF
+  NUM* = ., EOF
+  NUM+ = .NUM+ NUM, EOF
+  NUM+ = .NUM+ NUM, NUM
+  NUM+ = .NUM, EOF
+  NUM+ = .NUM, NUM
+    on EOF reduce NUM*
+    on ERROR shift I1
+    on NUM shift I2
+    on NUM* goto I3
+    on NUM+ goto I4
+    on S goto I5
+I1:
+  S = ERROR., EOF
+    on EOF reduce S
+I2:
+  NUM+ = NUM., EOF
+  NUM+ = NUM., NUM
+    on EOF reduce NUM+
+    on NUM reduce NUM+
+I3:
+  S = NUM*., EOF
+    on EOF reduce S
+I4:
+  NUM* = NUM+., EOF
+  NUM+ = NUM+ .NUM, EOF
+  NUM+ = NUM+ .NUM, NUM
+    on EOF reduce NUM*
+    on NUM shift I6
+I5:
+  S' = S., EOF
+    on EOF accept
+I6:
+  NUM+ = NUM+ NUM., EOF
+  NUM+ = NUM+ NUM., NUM
+    on EOF reduce NUM+
+    on NUM reduce NUM+
+
+Lexer Modes
+============
+$default:
+digraph G {
+  rankdir="LR";
+  0 -> 2 [label="/"];
+  0 -> 5 [label="\\r"];
+  0 -> 5 [label=" "];
+  0 -> 5 [label="\\t-\\n"];
+  0 -> 7 [label="0-9"];
+  1 -> 4 [label="\\u0000-)"];
+  1 -> 4 [label="+-\\u10ffff"];
+  1 -> 6 [label="*"];
+  2 -> 4 [label="*"];
+  2 -> 8 [label="/"];
+  3 -> 3 [label="\\n"];
+  3 -> 8 [label="\\u0000-\\t"];
+  3 -> 8 [label="\\u000b-\\u10ffff"];
+  4 -> 4 [label="\\u0000-)"];
+  4 -> 4 [label="+-\\u10ffff"];
+  4 -> 6 [label="*"];
+  5 -> 5 [label="\\r"];
+  5 -> 5 [label=" "];
+  5 -> 5 [label="\\t-\\n"];
+  6 -> 1 [label="/"];
+  6 -> 4 [label="+-."];
+  6 -> 4 [label="\\u0000-)"];
+  6 -> 4 [label="0-\\u10ffff"];
+  6 -> 6 [label="*"];
+  7 -> 7 [label="0-9"];
+  8 -> 3 [label="\\n"];
+  8 -> 8 [label="\\u0000-\\t"];
+  8 -> 8 [label="\\u000b-\\u10ffff"];
+  0 [label="0", shape="circle"];
+  1 [label="1", shape="doubleoctagon"];
+  2 [label="2", shape="circle"];
+  3 [label="3", shape="doubleoctagon"];
+  4 [label="4", shape="octagon"];
+  5 [label="5", shape="doublecircle"];
+  6 [label="6", shape="octagon"];
+  7 [label="7", shape="doublecircle"];
+  8 [label="8", shape="octagon"];
+}
+
+Tests
+=====
+Input:
+1 2 3 /* comment */ 4
+5 // here is a single-line comment 
+6 7
+/*
+  multi-line 
+  comment
+*/
+8
+
+
+Output:
+[1 2 3 4 5 6 7 8]
+

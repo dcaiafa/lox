@@ -1,0 +1,104 @@
+sources:
+  - name: parser.lox
+    data: |
+      @lexer
+
+      NUM = [0-9]+
+
+      @frag [ \r\n\t]+  @discard
+      @frag '//' .*? '\n'  @discard
+      @frag '/*' .*? '*/'  @discard
+
+      @parser
+
+      @start S = NUM*
+               | @error
+
+  - name: parser.go
+    data: |
+      package main
+
+      import (
+        gotoken "go/token"
+        "strconv"
+        "io"
+        "os"
+        "fmt"
+
+        "github.com/dcaiafa/loxlex/simplelexer"
+
+        "github.com/dcaiafa/lox/internal/base/errlogger"
+      )
+
+      type Token = simplelexer.Token
+
+      func main() {
+        input, err := io.ReadAll(os.Stdin)
+        if err != nil {
+          panic(err)
+        }
+
+        fset := gotoken.NewFileSet()
+        file := fset.AddFile("expr", -1, len(input))
+        errs := errlogger.New(fset, os.Stdout)
+
+        var parser parser
+        parser.errs = errs
+        parser.fset = fset
+        lex := simplelexer.New(simplelexer.Config{
+          StateMachine: new(_LexerStateMachine),
+          File: file,
+          Input: input,
+        })
+        ok := parser.parse(lex)
+
+        if !ok {
+          fmt.Println("Failed to parse.")
+          return
+        }
+        if errs.HasError() {
+          fmt.Println("Errors occurred.")
+          return
+        }
+
+        fmt.Println(parser.result)
+      }
+
+      type parser struct {
+        lox
+        fset   *gotoken.FileSet
+        errs   *errlogger.ErrLogger
+        result []int
+      }
+
+      func (p *parser) on_S(nums []Token) any {
+        var result []int
+        for _, numToken := range nums {
+          num, err := strconv.Atoi(string(numToken.Str))
+          if err != nil {
+            panic("failed to parse number")
+          }
+          result = append(result, num)
+        }
+        p.result = result
+        return nil
+      }
+
+      func (p *parser) on_S__error(e Error) any {
+        p.errs.Errorf(
+          e.Token.Pos, "Unexpected %v", _TokenToString(e.Token.Type))
+        return nil
+      }
+
+tests: 
+  - name: basic
+    inputs:
+      - |
+        1 2 3 /* comment */ 4
+        5 // here is a single-line comment 
+        6 7
+        /*
+          multi-line 
+          comment
+        */
+        8

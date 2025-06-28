@@ -3,10 +3,10 @@ package dfa
 import (
 	"sort"
 
-	"github.com/dcaiafa/lox/internal/lexergen/nfa"
 	"github.com/dcaiafa/lox/internal/base/array"
 	"github.com/dcaiafa/lox/internal/base/set"
 	"github.com/dcaiafa/lox/internal/base/stack"
+	"github.com/dcaiafa/lox/internal/lexergen/nfa"
 )
 
 func NFAToDFA(n *nfa.State) *DFA {
@@ -75,6 +75,7 @@ func eClosure(nfaStates set.Set[*nfa.State]) *State {
 		closure[s.ID] = s
 		stack.Push(s)
 		dfaState.Accept = dfaState.Accept || s.Accept
+		dfaState.NonGreedy = dfaState.NonGreedy || s.NonGreedy
 	})
 
 	for !stack.Empty() {
@@ -85,6 +86,7 @@ func eClosure(nfaStates set.Set[*nfa.State]) *State {
 				closure[to.ID] = to
 				stack.Push(to)
 				dfaState.Accept = dfaState.Accept || to.Accept
+				dfaState.NonGreedy = dfaState.NonGreedy || to.NonGreedy
 			}
 		}
 	}

@@ -18,7 +18,7 @@ func Parse(s string) (any, error) {
 	var errStr strings.Builder
 	errs := errlogger.New(fset, &errStr)
 
-	var parser jsonParser
+	var parser jsoncParser
 	parser.file = file
 	parser.errs = errs
 
@@ -37,27 +37,27 @@ func Parse(s string) (any, error) {
 
 type Token = simplelexer.Token
 
-type jsonParser struct {
+type jsoncParser struct {
 	lox
 	file *gotoken.File
 	errs *errlogger.ErrLogger
 	res  any
 }
 
-func (p *jsonParser) on_json(v any) any {
+func (p *jsoncParser) on_json(v any) any {
 	p.res = v
 	return v
 }
 
-func (p *jsonParser) on_value__object(v map[string]any) any {
+func (p *jsoncParser) on_value__object(v map[string]any) any {
 	return v
 }
 
-func (p *jsonParser) on_value__array(v []any) any {
+func (p *jsoncParser) on_value__array(v []any) any {
 	return v
 }
 
-func (p *jsonParser) on_value__tok(t Token) any {
+func (p *jsoncParser) on_value__tok(t Token) any {
 	switch t.Type {
 	case STRING:
 		return unescape(t.Str[1 : len(t.Str)-1])
@@ -83,7 +83,7 @@ type member struct {
 	V any
 }
 
-func (p *jsonParser) on_object(_ Token, members []member, _ Token) map[string]any {
+func (p *jsoncParser) on_object(_ Token, members []member, _ Token) map[string]any {
 	m := make(map[string]any, len(members))
 
 	for _, member := range members {
@@ -93,11 +93,11 @@ func (p *jsonParser) on_object(_ Token, members []member, _ Token) map[string]an
 	return m
 }
 
-func (p *jsonParser) on_member(k Token, _ Token, v any) member {
+func (p *jsoncParser) on_member(k Token, _ Token, v any) member {
 	return member{K: unescape(k.Str[1 : len(k.Str)-1]), V: v}
 }
 
-func (p *jsonParser) on_array(_ Token, entries []any, _ Token) []any {
+func (p *jsoncParser) on_array(_ Token, entries []any, _ Token) []any {
 	return entries
 }
 

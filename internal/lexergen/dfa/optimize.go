@@ -93,6 +93,7 @@ func optimize(d *DFA) {
 				startGroup = group
 			}
 			newStates[group].Accept = newStates[group].Accept || s.Accept
+			newStates[group].NonGreedy = newStates[group].NonGreedy || s.NonGreedy
 			newStates[group].NFAStates = append(
 				newStates[group].NFAStates,
 				s.NFAStates...)

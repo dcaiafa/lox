@@ -170,6 +170,7 @@ the lexer will match sequences of characters.
 | Expression | Description |
 | ---------- | ----------- |
 | 'literal'  | Match a sequence of characters (e.g. 'func', '!=', ','). Special characters must be [escaped](#literal-escaping-rules).
+| `.` | Match any character.
 | [*char_class*] | Match one of the characters in the set. x-y specifies a range of characters (e.g. [A-Ca-c] is equivalent to [ABCabc]). [Escaped](#literal-escaping-rules) characters are also allowed (e.g. [a\-z] will match a, `-` or z).
 | ~[*char_class*] | Like [*char_class*], but it matches characters **not** in the set.
 | *cc* - *cc* | Matches the difference between two character classes (e.g. [A-Z] - [IJK] matches any character between A and Z that is not I, J or K).
@@ -179,6 +180,15 @@ the lexer will match sequences of characters.
 | *expr* ? | Optionally match expression (e.g. [1-9][0-9]*('.'[0-9]+)? specifies a number with an optional fractional part).
 | *expr* * | Match the expression zero or more times (e.g. [1-9][0-9]* matches sequences like 1 and 123).
 | *expr* + | Match the expression one or more times (e.g. [1-9][0-9]+ matches 22, 109, but not 1).
+| *expr* *? | Like `*`, but non-greedy. 
+| *expr* +? | Like `+`, but non-greedy. 
+
+{.notice}
+The non-greedy cardinalities `*?` and `+?` will consume the least amount of
+input required. As such they make no sense in the end of term expressions. The
+expression `[0-9]+?` by itself will never match more than one digit. On the
+other hand, the C comment lexer expression `'/*' .*? '*/'` will not work
+correctly without the `?`. This is because `.*` will also match `*/`. 
 
 ### Lexical Names
 

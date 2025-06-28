@@ -86,7 +86,7 @@ type lox struct {
 	_qlasym any
 }
 
-func (p *jsonParser) parse(lex _Lexer) bool {
+func (p *jsoncParser) parse(lex _Lexer) bool {
 	const accept = 2147483647
 
 	p._lex = lex
@@ -133,7 +133,7 @@ func (p *jsonParser) parse(lex _Lexer) bool {
 // recoverLookahead can be called during an error production action (an action
 // for a production that has a @error term) to recover the lookahead that was
 // possibly lost in the process of reducing the error production.
-func (p *jsonParser) recoverLookahead(typ int, tok Token) {
+func (p *jsoncParser) recoverLookahead(typ int, tok Token) {
 	if p._qla != -1 {
 		panic("recovered lookahead already pending")
 	}
@@ -144,7 +144,7 @@ func (p *jsonParser) recoverLookahead(typ int, tok Token) {
 	p._lasym = tok
 }
 
-func (p *jsonParser) _readToken() {
+func (p *jsoncParser) _readToken() {
 	if p._qla != -1 {
 		p._la = p._qla
 		p._lasym = p._qlasym
@@ -159,7 +159,7 @@ func (p *jsonParser) _readToken() {
 	}
 }
 
-func (p *jsonParser) _recover() bool {
+func (p *jsoncParser) _recover() bool {
 	errSym, ok := p._lasym.(Error)
 	if !ok {
 		errSym = p._makeError()
@@ -214,7 +214,7 @@ func (p *jsonParser) _recover() bool {
 	}
 }
 
-func (p *jsonParser) _makeError() Error {
+func (p *jsoncParser) _makeError() Error {
 	e := Error{
 		Token: p._lasym.(Token),
 	}
@@ -233,7 +233,7 @@ func (p *jsonParser) _makeError() Error {
 	return e
 }
 
-func (p *jsonParser) _act(prod int32) any {
+func (p *jsoncParser) _act(prod int32) any {
 	switch prod {
 	case 1:
 		return p.on_json(

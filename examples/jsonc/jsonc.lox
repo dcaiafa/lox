@@ -1,4 +1,6 @@
-// Based on https://www.json.org/json-en.html
+// JSONC (JSON with comments) parser
+// Based on https://www.json.org/json-en.html and https://jsonc.org/.
+//
 // DISCLAIMER: This is provided for illustrative purposes only. Absolutely no
 // effort was made to verify full compliance with the JSON specification.
 
@@ -35,6 +37,13 @@ NULL  = 'null'
 @macro EXPONENT = [eE] [+-]? [1-9] [0-9]*
 NUMBER = INTEGER FRACTION? EXPONENT?
 
+// Discard Multi-line comments.
+@frag '/*' .*? '*/' @discard
+
+// Discard single-line comments.
+@frag '//' .*? '\n' @discard
+
+// Discard whitespace.
 @frag [ \r\n\t]+  @discard
 
 @parser
@@ -48,7 +57,6 @@ value = object
       | 'true'
       | 'false'
       | 'null'
-
 
 object = '{' @list(member, ',')? '}'
 

@@ -304,6 +304,11 @@ the lexer will match sequences of characters.</p>
 </tr>
 
 <tr>
+<td><code>.</code></td>
+<td>Match any character.</td>
+</tr>
+
+<tr>
 <td>[<em>char_class</em>]</td>
 <td>Match one of the characters in the set. x-y specifies a range of characters (e.g. [A-Ca-c] is equivalent to [ABCabc]). <a href="#literal-escaping-rules">Escaped</a> characters are also allowed (e.g. [a-z] will match a, <code>-</code> or z).</td>
 </tr>
@@ -347,8 +352,23 @@ the lexer will match sequences of characters.</p>
 <td><em>expr</em> +</td>
 <td>Match the expression one or more times (e.g. [1-9][0-9]+ matches 22, 109, but not 1).</td>
 </tr>
+
+<tr>
+<td><em>expr</em> *?</td>
+<td>Like <code>*</code>, but non-greedy.</td>
+</tr>
+
+<tr>
+<td><em>expr</em> +?</td>
+<td>Like <code>+</code>, but non-greedy.</td>
+</tr>
 </tbody>
 </table>
+<p class="notice">The non-greedy cardinalities <code>*?</code> and <code>+?</code> will consume the least amount of
+input required. As such they make no sense in the end of term expressions. The
+expression <code>[0-9]+?</code> by itself will never match more than one digit. On the
+other hand, the C comment lexer expression <code>'/*' .*? '*/'</code> will not work
+correctly without the <code>?</code>. This is because <code>.*</code> will also match <code>*/</code>.</p>
 
 <h3 id="lexical-names">Lexical Names</h3>
 

@@ -18,11 +18,14 @@ TILDE       = '~'
 OPAREN      = '('
 CPAREN      = ')'
 SUB         = '-'
+DOT         = '.'
 
-ZERO_OR_ONE    = '?'
-ZERO_OR_MORE   = '*'
-ONE_OR_MORE    = '+'
-ZERO_OR_MORE_F = '*!'
+ZERO_OR_ONE     = '?'
+ZERO_OR_MORE    = '*'
+ZERO_OR_MORE_NG = '*?'
+ONE_OR_MORE     = '+'
+ONE_OR_MORE_NG  = '+?'
+ZERO_OR_MORE_F  = '*!'
 
 PARSER         = '@parser'
 LEXER          = '@lexer'
@@ -77,7 +80,7 @@ OBRACKET = '[' @push_mode(ClassChar)
 }
 
 // Comments
-@frag '//' ~[\n]*  @discard
+@frag '//' .*? '\n'  @discard
 
 // New lines and line extensions are handled by the augmented lexer.
 // Check out lexer.go.
@@ -138,10 +141,11 @@ lexer_expr = @list(lexer_factor, '|')
 
 lexer_factor    = lexer_term_card+
 lexer_term_card = lexer_term lexer_card?
-lexer_card      = '?' | '*' | '+'
+lexer_card      = '?' | '*' | '*?' | '+' | '+?'
 
 lexer_term = LITERAL
            | ID
+           | DOT
            | char_class_expr
            | '(' lexer_expr ')'
 

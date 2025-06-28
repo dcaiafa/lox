@@ -37,6 +37,10 @@ type State struct {
 	// You set this yourself.
 	Accept bool
 
+	// NonGreedy, in combination with Accept, indicate that the state machine
+	// should accept the current string without consuming additional input.
+	NonGreedy bool
+
 	// Data is some user-data associated with this state.
 	// Your set this yourself (or don't, I don't care).
 	Data any
@@ -127,9 +131,16 @@ func (n *State) Print(out io.Writer) {
 	})
 
 	for _, state := range states {
-		shape := "circle"
-		if state.Accept {
+		var shape string
+		switch {
+		case state.Accept && state.NonGreedy:
+			shape = "doubleoctagon"
+		case state.NonGreedy:
+			shape = "octagon"
+		case state.Accept:
 			shape = "doublecircle"
+		default:
+			shape = "circle"
 		}
 		fmt.Fprintf(out, "  %v [label=\"%v\", shape=%q];\n", state.ID, state.ID, shape)
 	}

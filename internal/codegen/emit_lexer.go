@@ -30,6 +30,10 @@ var _lexerModes = [][]uint32 {
 {{ end }}
 }
 
+// Flag for the mode table that indicates that the state is non-greedy
+// accepting. At this state, the state machine is expected to accept the current
+// string without attempting to consume additional input.
+const  _stateNonGreedyAccepting = 1
 
 const (
 	_lexerConsume  = 0
@@ -60,8 +64,9 @@ func (l *_LexerStateMachine) PushRune(r rune) int {
 	i++
 	end := i + count
 
-	// The format of the row is as follows:
+	// The format of each row is as follows:
 	//
+	//   stateFlags uint32
 	//   gotoCount uint32
 	//   [gotoCount]struct{
 	//     rangeBegin uint32
@@ -75,25 +80,28 @@ func (l *_LexerStateMachine) PushRune(r rune) int {
 	//
 	// Where 'actionCount' is determined by the amount of uint32 left in the row.
 
-	gotoN := int(mode[i])
-	i++
+	flags := mode[i]
+	gotoN := int(mode[i+1])
+	i += 2
 
-	// Use binary-search to find the next state.
-	b := 0
-	e := gotoN
-	for b < e {
-		j := b + (e-b)/2
-		k := i + j*3
-		switch {
-		case r >= rune(mode[k]) && r <= rune(mode[k+1]):
-			l.state = int(mode[k+2])
-			return _lexerConsume
-		case r < rune(mode[k]):
-			e = j
-		case r > rune(mode[k+1]):
-			b = j + 1
-		default:
-			panic("not reached")
+	if flags & _stateNonGreedyAccepting == 0 {
+		// Use binary-search to find the next state.
+		b := 0
+		e := gotoN
+		for b < e {
+			j := b + (e-b)/2
+			k := i + j*3
+			switch {
+			case r >= rune(mode[k]) && r <= rune(mode[k+1]):
+				l.state = int(mode[k+2])
+				return _lexerConsume
+			case r < rune(mode[k]):
+				e = j
+			case r > rune(mode[k+1]):
+				b = j + 1
+			default:
+				panic("not reached")
+			}
 		}
 	}
 
@@ -125,7 +133,7 @@ func (l *_LexerStateMachine) PushRune(r rune) int {
 		}
 	}
 
-	if l.state == 0 && r == 0 {
+	if l.state == 0 && r == -1 {
 		return _lexerEOF
 	}
 
@@ -140,6 +148,11 @@ func (l *_LexerStateMachine) Token() int {
 	return l.token
 }
 `
+
+// Flag for the mode table that indicates that the state is non-greedy
+// accepting. At this state, the state machine is expected to accept the current
+// string without attempting to consume additional input.
+const stateNonGreedyAcceptingFlag uint32 = 1
 
 func (c *context) EmitLexer() bool {
 	vars := make(jet.VarMap)
@@ -167,13 +180,19 @@ func (c *context) EmitLexer() bool {
 			var row []uint32
 			actions := state.Data.(*mode.Actions)
 
-			row = append(row, uint32(state.Transitions.Len()))
 			inputs := make([]rang3.Range, 0, state.Transitions.Len())
 			state.Transitions.ForEach(func(eventRaw any, toState *dfa.State) {
 				inputs = append(inputs, eventRaw.(rang3.Range))
 			})
 			slices.SortFunc(inputs, rang3.Compare)
 
+			var stateFlags uint32
+			if state.Accept && state.NonGreedy {
+				stateFlags = stateNonGreedyAcceptingFlag
+			}
+
+			row = append(row, stateFlags)
+			row = append(row, uint32(len(inputs)))
 			for _, input := range inputs {
 				toState, ok := state.Transitions.Get(input)
 				assert.True(ok)

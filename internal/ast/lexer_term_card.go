@@ -47,7 +47,7 @@ func (t *LexerTermCard) NFACons(ctx *Context) *mode.NFAComposite {
 		termCons.E.AddTransition(nfaCons.E, nfa.Epsilon)
 		return nfaCons
 
-	case ZeroOrMore:
+	case ZeroOrMore, ZeroOrMoreNG:
 		//             ε
 		//        +--------+
 		//    ε   v        |  ε
@@ -60,13 +60,14 @@ func (t *LexerTermCard) NFACons(ctx *Context) *mode.NFAComposite {
 			B: nfaFactory.NewState(),
 			E: nfaFactory.NewState(),
 		}
+		nfaCons.E.NonGreedy = t.Card == ZeroOrMoreNG
 		nfaCons.B.AddTransition(nfaCons.E, nfa.Epsilon)
 		nfaCons.B.AddTransition(termCons.B, nfa.Epsilon)
 		termCons.E.AddTransition(termCons.B, nfa.Epsilon)
 		termCons.E.AddTransition(nfaCons.E, nfa.Epsilon)
 		return nfaCons
 
-	case OneOrMore:
+	case OneOrMore, OneOrMoreNG:
 		//             ε
 		//        +--------+
 		//    ε   v        |  ε
@@ -77,6 +78,7 @@ func (t *LexerTermCard) NFACons(ctx *Context) *mode.NFAComposite {
 			B: nfaFactory.NewState(),
 			E: nfaFactory.NewState(),
 		}
+		nfaCons.E.NonGreedy = t.Card == ZeroOrMoreNG
 		nfaCons.B.AddTransition(termCons.B, nfa.Epsilon)
 		termCons.E.AddTransition(termCons.B, nfa.Epsilon)
 		termCons.E.AddTransition(nfaCons.E, nfa.Epsilon)

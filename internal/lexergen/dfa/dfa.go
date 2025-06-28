@@ -8,10 +8,10 @@ import (
 	"slices"
 	"sort"
 
-	"github.com/dcaiafa/lox/internal/lexergen/nfa"
 	"github.com/dcaiafa/lox/internal/base/set"
 	"github.com/dcaiafa/lox/internal/base/stablemap"
 	"github.com/dcaiafa/lox/internal/base/stack"
+	"github.com/dcaiafa/lox/internal/lexergen/nfa"
 )
 
 type DFA struct {
@@ -26,6 +26,7 @@ type State struct {
 	ID          uint32
 	Transitions stablemap.Map[any, *State]
 	Accept      bool
+	NonGreedy   bool
 	NFAStates   []*nfa.State
 	Data        any
 }
@@ -91,9 +92,16 @@ func (n *State) Print(out io.Writer) {
 	})
 
 	for _, state := range states {
-		shape := "circle"
-		if state.Accept {
+		var shape string
+		switch {
+		case state.Accept && state.NonGreedy:
+			shape = "doubleoctagon"
+		case state.NonGreedy:
+			shape = "octagon"
+		case state.Accept:
 			shape = "doublecircle"
+		default:
+			shape = "circle"
 		}
 		fmt.Fprintf(out, "  %v [label=\"%v\", shape=%q];\n", state.ID, state.ID, shape)
 	}
