@@ -6,7 +6,7 @@ toolchain go1.24.3
 
 require (
 	github.com/CloudyKit/jet/v6 v6.3.1
-	github.com/dcaiafa/loxlex v0.4.0
+	github.com/dcaiafa/loxlex v0.5.0
 	github.com/google/go-cmp v0.7.0
 	golang.org/x/tools v0.33.0
 	gopkg.in/yaml.v3 v3.0.1
