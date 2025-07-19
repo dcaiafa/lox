@@ -133,7 +133,7 @@ func normalizeInputs(s *nfa.State) {
 			}
 			inputRange, ok := input.(rang3.Range)
 			if !ok {
-				// Probably an ε.
+				assert.True(input == nfa.Epsilon)
 				return
 			}
 			graph[inputRange] = append(graph[inputRange], s)

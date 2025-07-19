@@ -23,7 +23,12 @@ func (e epsilon) String() string {
 var Epsilon = epsilon{}
 
 // State is a state in a NFA.
-// NFAStates should only created using NFA.NewState().
+// NFA represents a Nondeterministic Finite Automaton.
+// https://en.wikipedia.org/wiki/Nondeterministic_finite_automaton
+// The NFA is state machine where:
+// - A state is allowed to have multiple transitions for the same input.
+// - The input ε (empty string) is allowed.
+// State should only created using StateFactory.
 type State struct {
 	// ID of the state.
 	// It is assigned by the NFA and should be read-only.
@@ -57,11 +62,6 @@ func (s *State) AddTransition(to *State, input any) {
 	states.Add(to)
 }
 
-// NFA represents a Nondeterministic Finite Automaton.
-// https://en.wikipedia.org/wiki/Nondeterministic_finite_automaton
-// The NFA is state machine where:
-// - A state is allowed to have multiple transitions for the same input.
-// - The input ε (empty string) is allowed.
 type StateFactory struct {
 	nextID uint32
 }

@@ -1,7 +1,6 @@
 package rang3
 
 import (
-	"container/heap"
 	"fmt"
 	"slices"
 	"sort"
@@ -82,12 +81,11 @@ func Compare(a, b Range) int {
 }
 
 func Normalize(ranges []Range, onChange func(o, a, b, c Range)) {
-	rh := rangeHeap(ranges)
-	heap.Init(&rh)
+	rh := newRangeHeap(ranges)
 
-	for len(rh) > 1 {
-		x := heap.Pop(&rh).(Range)
-		y := rh[0]
+	for rh.Len() > 1 {
+		x := rh.Pop()
+		y := rh.Peek()
 
 		if x == y {
 			continue
@@ -106,9 +104,9 @@ func Normalize(ranges []Range, onChange func(o, a, b, c Range)) {
 			// a    ---
 			a := Range{x.E + 1, y.E}
 			onChange(y, x, a, a)
-			heap.Pop(&rh) // pop y
-			heap.Push(&rh, x)
-			heap.Push(&rh, a)
+			rh.Pop() // pop y
+			rh.Push(x)
+			rh.Push(a)
 
 		case x.B < y.B && x.E == y.E:
 			// x ------
@@ -118,7 +116,7 @@ func Normalize(ranges []Range, onChange func(o, a, b, c Range)) {
 			// y    ---
 			a := Range{x.B, y.B - 1}
 			onChange(x, a, y, y)
-			heap.Push(&rh, a)
+			rh.Push(a)
 
 		case x.B < y.B && x.E < y.E:
 			// x ------
@@ -132,10 +130,10 @@ func Normalize(ranges []Range, onChange func(o, a, b, c Range)) {
 			c := Range{x.E + 1, y.E}
 			onChange(x, a, b, b)
 			onChange(y, b, c, c)
-			heap.Pop(&rh) // pop y
-			heap.Push(&rh, a)
-			heap.Push(&rh, b)
-			heap.Push(&rh, c)
+			rh.Pop() // pop y
+			rh.Push(a)
+			rh.Push(b)
+			rh.Push(c)
 
 		case x.B < y.B && x.E > y.E:
 			// x ---------
@@ -147,8 +145,8 @@ func Normalize(ranges []Range, onChange func(o, a, b, c Range)) {
 			a := Range{x.B, y.B - 1}
 			b := Range{y.E + 1, x.E}
 			onChange(x, a, y, b)
-			heap.Push(&rh, a)
-			heap.Push(&rh, b)
+			rh.Push(a)
+			rh.Push(b)
 
 		default:
 			panic("not reached")
