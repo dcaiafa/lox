@@ -6,6 +6,10 @@ Lox is a lexer and parser generator for Go.
 
 For comprehensive documentation, examples, and tutorials, visit **[dcaiafa.github.io/lox](https://dcaiafa.github.io/lox/)**.
 
+### Community translation
+
+- [한국어 (Korean)](https://ybkimm.github.io/lox-kr-docs)
+
 ## Quick Start
 
 ```bash
